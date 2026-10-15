@@ -1,0 +1,273 @@
+.page {
+  max-width: 980px;
+  margin-inline: auto;
+  padding: 40px var(--gutter) 96px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  color: var(--navy-800);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  margin: 12px 0 8px;
+  font-size: clamp(32px, 4.5vw, 46px);
+}
+
+.header p {
+  color: var(--text-muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--gold-200);
+  color: var(--navy-900);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: start;
+  gap: 28px;
+}
+
+.chooser {
+  display: grid;
+  gap: 12px;
+  border: 0;
+  min-width: 0;
+}
+
+.chooser legend,
+.summary h2 {
+  margin-bottom: 14px;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--navy-900);
+}
+
+.planOption {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.planOption:hover {
+  border-color: var(--blue-400);
+}
+
+.planOption:has(.radio:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+
+.active {
+  background: var(--white);
+  border-color: var(--navy-800);
+  box-shadow: inset 0 0 0 1px var(--navy-800);
+}
+
+.radio {
+  position: absolute;
+  opacity: 0;
+}
+
+.planName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.popular {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--navy-800);
+  color: var(--gold-200);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.planMeta {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.summary {
+  padding: 26px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.details {
+  display: grid;
+  gap: 10px;
+}
+
+.details div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.details dt {
+  color: var(--text-muted);
+}
+
+.details dd {
+  font-weight: 600;
+}
+
+.total {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.total dd {
+  color: var(--success);
+  font-size: 18px;
+}
+
+.perks {
+  margin: 18px 0 8px;
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  font-size: 14px;
+}
+
+.perks li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.perks svg {
+  color: var(--gold-700);
+}
+
+.summary .stepTitle {
+  margin-top: 24px;
+}
+
+.ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.ack input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--navy-800);
+}
+
+.error {
+  min-height: 22px;
+  margin: 8px 0 10px;
+  color: var(--danger);
+  font-size: 14px;
+}
+
+/* ===== Sucesso ===== */
+
+.success {
+  max-width: 580px;
+  margin: 40px auto 0;
+  padding: 40px 32px;
+  text-align: center;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.successIcon {
+  margin: 20px auto 12px;
+  color: var(--success);
+}
+
+.success h1 {
+  margin-bottom: 12px;
+  font-size: clamp(30px, 4vw, 40px);
+  outline: none;
+}
+
+.success p {
+  color: var(--text-muted);
+}
+
+.important {
+  margin: 18px 0 26px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--info-bg);
+  border-radius: var(--radius-sm);
+  color: var(--navy-900) !important;
+  font-size: 14px;
+  text-align: left;
+}
+
+.important svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .summary {
+    padding: 20px;
+  }
+
+  .actions > * {
+    width: 100%;
+  }
+}

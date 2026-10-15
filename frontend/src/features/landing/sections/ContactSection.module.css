@@ -1,0 +1,107 @@
+.section {
+  padding: 96px 0 110px;
+}
+
+.inner {
+  max-width: 860px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.form {
+  padding: 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 13px 14px;
+  background: var(--white);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+.field textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible {
+  border-color: var(--navy-800);
+}
+
+.field [aria-invalid="true"] {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.error {
+  color: var(--danger);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.note {
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.success {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--success-bg);
+  border-radius: var(--radius-sm);
+  color: var(--success);
+  font-size: 14px;
+}
+
+.success svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.success a {
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .form {
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+}

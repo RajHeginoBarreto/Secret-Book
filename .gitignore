@@ -1,0 +1,19 @@
+# Dependências e builds
+node_modules/
+dist/
+target/
+coverage/
+
+# Ambiente e segredos (nunca versionar)
+.env
+.env.*
+!.env.example
+
+# IDEs e sistema
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.iml
+.DS_Store
+Thumbs.db
+*.log

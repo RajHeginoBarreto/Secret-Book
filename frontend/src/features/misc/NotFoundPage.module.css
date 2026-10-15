@@ -1,0 +1,33 @@
+.page {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 96px var(--gutter);
+  text-align: center;
+}
+
+.code {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--kraft);
+  font-family: var(--font-serif);
+  font-size: 72px;
+  font-style: italic;
+  line-height: 1;
+}
+
+.page h1 {
+  margin-bottom: 14px;
+  font-size: clamp(30px, 4vw, 42px);
+}
+
+.page p {
+  color: var(--text-muted);
+}
+
+.actions {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}

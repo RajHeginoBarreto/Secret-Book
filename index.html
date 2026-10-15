@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Secret Book — encontro às cegas com um livro. Descubra seu próximo livro através do nosso quiz literário.">
+    <title>Secret Book</title>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+
+<body>
+
+    <header class="cabecalho">
+        <div class="logo">
+            <a href="#inicio" aria-label="Voltar ao início">
+                <img src="img/secret_book_logo_final.svg" alt="Logo Secret Book">
+            </a>
+            <h1>Secret Book</h1>
+        </div>
+
+        <nav aria-label="Navegação principal">
+            <ul>
+                <li><a href="#inicio">Home</a></li>
+                <li><a href="#sobre">Como Funciona</a></li>
+                <li><a href="#pistas">Pistas</a></li>
+                <li><a href="#planos">Planos</a></li>
+                <li><a href="#quiz" class="menu-quiz">Fazer o Quiz</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+
+        <section class="abertura" id="inicio">
+            <div class="abertura-conteudo">
+                <span class="sobretitulo">✦ Encontro às cegas com um livro</span>
+                <h2>Livros que combinam<br>com você</h2>
+                <p>
+                    Responda ao quiz e receba um livro novo embrulhado à mão,
+                    sem saber o título. Você só descobre a história quando abrir.
+                </p>
+
+                <div class="abertura-botoes">
+                    <a href="#quiz" class="botao botao-principal">Descobrir meu livro →</a>
+                    <a href="#planos" class="botao botao-contorno">Ver planos</a>
+                </div>
+            </div>
+
+            <div class="abertura-decoracao" aria-hidden="true">
+                <span class="brilho brilho-um">✦</span>
+                <span class="brilho brilho-dois">✦</span>
+                <div class="livro livro-um"></div>
+                <div class="livro livro-dois"></div>
+                <div class="livro livro-tres"></div>
+            </div>
+        </section>
+
+        <section class="sobre" id="sobre">
+            <div class="titulo-secao">
+                <span class="sobretitulo">✦ Como funciona</span>
+                <h2>Uma nova forma de encontrar sua próxima leitura</h2>
+                <p>
+                    Uma experiência literária criada para transformar a escolha
+                    de um livro em uma pequena aventura.
+                </p>
+            </div>
+
+            <div class="cartoes">
+
+                <article class="cartao">
+                    <div class="cartao-imagem">
+                        <img src="img1.jpg" alt="Quiz de preferências literárias">
+                    </div>
+                    <span class="cartao-numero">01</span>
+                    <h3>Você responde</h3>
+                    <p>
+                        Fazemos um quiz para conhecer seus gostos, gêneros
+                        favoritos e o tipo de história que combina com você.
+                    </p>
+                </article>
+
+                <article class="cartao">
+                    <div class="cartao-imagem">
+                        <img src="img2.jpg" alt="Livro preparado para a experiência Secret Book">
+                    </div>
+                    <span class="cartao-numero">02</span>
+                    <h3>Nós escolhemos</h3>
+                    <p>
+                        Com base nas suas respostas, selecionamos um livro novo
+                        que combina com o seu perfil literário.
+                    </p>
+                </article>
+
+                <article class="cartao">
+                    <div class="cartao-imagem">
+                        <img src="img3.jpg" alt="Experiência de descobrir um novo livro">
+                    </div>
+                    <span class="cartao-numero">03</span>
+                    <h3>Você descobre</h3>
+                    <p>
+                        O livro chega embalado com pistas, marca-páginas e
+                        adesivos para você descobrir a história aos poucos.
+                    </p>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="pistas" id="pistas">
+            <div class="pista-visual">
+                <div class="pista-faixa"></div>
+                <div class="pista-cartao">
+                    <span>Cartão de pistas</span>
+                    <strong>Mistério e suspense</strong>
+                    <p>312 páginas · avaliação 4,6</p>
+                    <small>segredo · ilha · traição</small>
+                </div>
+            </div>
+
+            <div class="pista-conteudo">
+                <span class="sobretitulo">✦ Pistas na embalagem</span>
+                <h2>Sem revelar o título.<br>Mas com boas pistas.</h2>
+                <p>
+                    Cada pacote traz um cartão com gênero, número de páginas,
+                    avaliação e palavras-chave. Dá para sentir a história
+                    sem estragar a surpresa.
+                </p>
+            </div>
+        </section>
+
+        <section class="planos" id="planos">
+            <div class="titulo-secao">
+                <span class="sobretitulo">✦ Clube Secret Book</span>
+                <h1>Escolha seu plano</h1>
+                <p>
+                    Receba uma nova experiência literária de acordo com o seu ritmo de leitura.
+                </p>
+            </div>
+
+            <div class="planos-lista">
+
+                <article class="plano">
+                    <span class="plano-etiqueta">Para começar</span>
+                    <h2>Leitor casual</h2>
+                    <div class="preco">R$ 38 <small>/mês</small></div>
+                    <p>1 livro novo por mês, escolhido de acordo com seu perfil.</p>
+                    <a href="Plano.html" class="botao botao-plano">Assinar</a>
+                </article>
+
+                <article class="plano destaque">
+                    <span class="plano-etiqueta">Mais popular</span>
+                    <h2>Leitor ávido</h2>
+                    <div class="preco">R$ 70 <small>/mês</small></div>
+                    <p>2 livros novos por mês para quem não consegue parar de ler.</p>
+                    <a href="Plano.html" class="botao botao-plano">Assinar</a>
+                </article>
+
+                <article class="plano">
+                    <span class="plano-etiqueta">Para maratonar</span>
+                    <h2>Maratona literária</h2>
+                    <div class="preco">R$ 130 <small>/mês</small></div>
+                    <p>4 livros por mês com brindes exclusivos para a sua coleção.</p>
+                    <a href="Plano.html" class="botao botao-plano">Assinar</a>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="quiz" id="quiz">
+            <div>
+                <span class="sobretitulo">✦ Seu próximo livro está esperando</span>
+                <h1>Pronto(a) para o seu encontro às cegas?</h1>
+                <p>Faça o quiz e descubra qual pacote combina com você.</p>
+            </div>
+            <a href="Quiz.html" class="botao botao-quiz">Começar o quiz</a>
+        </section>
+
+        <section class="contato" id="contato">
+            <div class="titulo-secao">
+                <span class="sobretitulo">✦ Fale com a gente</span>
+                <h1>Contato</h1>
+                <p>
+                    Entre em contato para dúvidas, sugestões ou qualquer outra questão.
+                </p>
+            </div>
+
+            <form id="form-contato">
+                <div class="campo">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+                </div>
+
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="seu.email@exemplo.com" required>
+                </div>
+
+                <div class="campo largura-total">
+                    <label for="mensagem">Mensagem</label>
+                    <textarea id="mensagem" name="mensagem" placeholder="Sua mensagem" rows="5" required></textarea>
+                </div>
+
+                <button type="submit">Enviar pelo WhatsApp</button>
+            </form>
+        </section>
+
+    </main>
+
+    <a href="https://wa.me/5548998017673" class="whatsapp-flutuante" target="_blank" rel="noopener" aria-label="Fale com a gente pelo WhatsApp">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16.04 3C8.86 3 3.03 8.82 3.03 16c0 2.3.6 4.54 1.74 6.52L3 29l6.65-1.74A12.95 12.95 0 0 0 16.04 29C23.2 29 29 23.18 29 16S23.2 3 16.04 3Zm0 23.62c-2 0-3.96-.54-5.67-1.56l-.4-.24-3.95 1.03 1.05-3.85-.26-.4A10.6 10.6 0 0 1 5.4 16c0-5.86 4.77-10.62 10.64-10.62 5.86 0 10.6 4.76 10.6 10.62 0 5.86-4.75 10.62-10.6 10.62Zm5.82-7.95c-.32-.16-1.88-.93-2.17-1.03-.29-.11-.5-.16-.71.16-.21.32-.82 1.03-1 1.24-.19.21-.37.24-.69.08-.32-.16-1.35-.5-2.56-1.58-.95-.85-1.59-1.89-1.77-2.21-.19-.32-.02-.49.14-.65.14-.14.32-.37.48-.56.16-.19.21-.32.32-.53.1-.21.05-.4-.03-.56-.08-.16-.71-1.71-.98-2.34-.26-.62-.52-.53-.71-.54h-.61c-.21 0-.56.08-.85.4-.29.32-1.11 1.09-1.11 2.65 0 1.56 1.14 3.07 1.3 3.28.16.21 2.24 3.42 5.43 4.8.76.33 1.35.52 1.81.67.76.24 1.45.2 2 .12.61-.09 1.88-.77 2.14-1.51.27-.74.27-1.38.19-1.51-.08-.13-.29-.21-.61-.37Z"/></svg>
+    </a>
+
+    <footer class="rodape">
+        <strong>Secret Book</strong>
+        <span>Uma experiência literária dentro de uma caixinha.</span>
+    </footer>
+
+    <script>
+        // Ao enviar o formulário, abre o WhatsApp com a mensagem já preenchida.
+        const WHATSAPP = "5548998017673";
+
+        document.getElementById("form-contato").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("nome").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const mensagem = document.getElementById("mensagem").value.trim();
+
+            const texto =
+                "Olá, Secret Book! Vim pelo site.\n\n" +
+                "*Nome:* " + nome + "\n" +
+                "*E-mail:* " + email + "\n\n" +
+                "*Mensagem:*\n" + mensagem;
+
+            window.open("https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(texto), "_blank");
+            e.target.reset();
+        });
+    </script>
+
+</body>
+</html>

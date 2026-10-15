@@ -1,0 +1,50 @@
+.header {
+  max-width: 720px;
+  margin-bottom: 48px;
+}
+
+.center {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.left {
+  text-align: left;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--navy-800);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin-bottom: 14px;
+  font-size: clamp(32px, 4.2vw, 50px);
+}
+
+.description {
+  max-width: 640px;
+  color: var(--text-muted);
+  font-size: 17px;
+}
+
+.center .description {
+  margin-inline: auto;
+}
+
+.dark .eyebrow {
+  color: var(--gold-200);
+}
+
+.dark .title {
+  color: var(--white);
+}
+
+.dark .description {
+  color: var(--text-on-dark);
+}

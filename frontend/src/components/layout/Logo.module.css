@@ -1,0 +1,27 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--navy-900);
+}
+
+.mark {
+  width: 57px;
+  height: 38px;
+  object-fit: contain;
+  /* A arte original tem fundo branco; "multiply" o funde ao fundo claro do cabeçalho. */
+  mix-blend-mode: multiply;
+}
+
+.name {
+  font-family: var(--font-serif);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.light {
+  color: var(--white);
+}

@@ -1,0 +1,247 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 80% 20%, rgba(91, 143, 199, 0.25), transparent 55%),
+    var(--navy-800);
+  color: var(--white);
+}
+
+.inner {
+  max-width: var(--container);
+  min-height: 600px;
+  margin-inline: auto;
+  padding: 88px var(--gutter);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: 48px;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--gold-200);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin-bottom: 22px;
+  color: var(--white);
+  font-size: clamp(44px, 6vw, 74px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.title em {
+  color: var(--gold-200);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.lead {
+  max-width: 540px;
+  margin-bottom: 30px;
+  color: var(--text-on-dark);
+  font-size: 18px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.note {
+  margin-top: 16px;
+  color: var(--blue-100);
+  font-size: 14px;
+}
+
+/* ===== Ilustração: pacote kraft + pilha de livros ===== */
+
+.art {
+  position: relative;
+  height: 380px;
+}
+
+.package {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  width: 260px;
+  height: 180px;
+  transform: translateX(-50%) rotate(-6deg);
+  background: var(--kraft);
+  border: 1px solid var(--kraft-dark);
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  animation: float 6s var(--ease) infinite;
+}
+
+.string {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  transform: translateX(-50%);
+  background: var(--navy-900);
+}
+
+.stringH {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 12px;
+  transform: translateY(-50%);
+  background: var(--navy-900);
+}
+
+.tag {
+  position: absolute;
+  right: -28px;
+  bottom: -22px;
+  padding: 10px 14px;
+  display: grid;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  color: var(--navy-900);
+  transform: rotate(8deg);
+  box-shadow: var(--shadow-md);
+}
+
+.tag span {
+  color: var(--navy-700);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tag strong {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.books {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  width: 300px;
+  transform: translateX(-50%);
+}
+
+.book {
+  position: relative;
+  height: 40px;
+  margin-top: 6px;
+  border-radius: 3px;
+  box-shadow: var(--shadow-sm);
+}
+
+.book::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 5px;
+  width: 10px;
+  height: 30px;
+  background: var(--gold-200);
+}
+
+.bookOne {
+  width: 88%;
+  margin-left: 6%;
+  background: var(--blue-400);
+}
+
+.bookTwo {
+  width: 96%;
+  background: var(--kraft);
+}
+
+.bookThree {
+  width: 100%;
+  background: var(--blue-100);
+}
+
+.spark {
+  position: absolute;
+  color: var(--gold-200);
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+.sparkOne {
+  top: 0;
+  right: 8%;
+  font-size: 34px;
+}
+
+.sparkTwo {
+  top: 46%;
+  left: 2%;
+  font-size: 20px;
+  animation-delay: 1.2s;
+}
+
+.sparkThree {
+  bottom: 30%;
+  right: 0;
+  font-size: 16px;
+  animation-delay: 2.1s;
+}
+
+@keyframes float {
+  50% {
+    transform: translateX(-50%) rotate(-4deg) translateY(-8px);
+  }
+}
+
+@keyframes twinkle {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (max-width: 900px) {
+  .inner {
+    grid-template-columns: 1fr;
+    padding-block: 64px 40px;
+    text-align: center;
+  }
+
+  .lead {
+    margin-inline: auto;
+  }
+
+  .actions {
+    justify-content: center;
+  }
+
+  .art {
+    height: 320px;
+    max-width: 380px;
+    width: 100%;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .actions > * {
+    width: 100%;
+  }
+
+  .art {
+    transform: scale(0.85);
+    margin-top: -20px;
+  }
+}
