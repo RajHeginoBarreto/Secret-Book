@@ -1,6 +1,7 @@
-import { Menu, X } from 'lucide-react'
+import { CircleUser, Menu, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { Link, useLocation } from 'react-router'
+import { useAuth } from '../../features/auth/AuthContext'
 import { Button } from '../ui/Button'
 import { Logo } from './Logo'
 import { MAIN_NAV } from './navigation'
@@ -8,6 +9,7 @@ import styles from './SiteHeader.module.css'
 
 export function SiteHeader() {
   const location = useLocation()
+  const { status, user } = useAuth()
   const menuId = useId()
   // O menu fica "aberto" apenas para a localização em que foi aberto:
   // qualquer navegação gera uma nova key e o fecha automaticamente.
@@ -48,6 +50,28 @@ export function SiteHeader() {
                 </Link>
               </li>
             ))}
+            {status === 'authenticated' && user?.role === 'ADMIN' && (
+              <li>
+                <Link to="/admin" className={styles.link} onClick={() => setOpenForKey(null)}>
+                  Painel
+                </Link>
+              </li>
+            )}
+            {status === 'authenticated' && (
+              <li>
+                <Link to="/minha-conta" className={styles.link} onClick={() => setOpenForKey(null)}>
+                  <CircleUser size={16} aria-hidden="true" className={styles.icon} />
+                  Minha conta
+                </Link>
+              </li>
+            )}
+            {status === 'anonymous' && (
+              <li>
+                <Link to="/entrar" className={styles.link} onClick={() => setOpenForKey(null)}>
+                  Entrar
+                </Link>
+              </li>
+            )}
             <li className={styles.ctaItem}>
               <Button to="/quiz" onClick={() => setOpenForKey(null)}>
                 Fazer o quiz

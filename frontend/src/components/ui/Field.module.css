@@ -1,0 +1,81 @@
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  color: var(--navy-900);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.control {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 13px;
+  background: var(--white);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s var(--ease);
+}
+
+.control:hover {
+  border-color: var(--blue-400);
+}
+
+.control:focus-visible {
+  border-color: var(--navy-700);
+}
+
+.control[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.group {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  border: 0;
+}
+
+.options {
+  display: grid;
+  gap: 6px 14px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.check input {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  accent-color: var(--navy-800);
+}
+
+@media (max-width: 560px) {
+  .options {
+    grid-template-columns: 1fr !important;
+  }
+}

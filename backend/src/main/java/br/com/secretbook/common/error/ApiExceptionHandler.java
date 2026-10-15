@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -30,6 +33,30 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	ProblemDetail handleResourceNotFound(ResourceNotFoundException ex) {
 		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
 		problem.setTitle("Recurso não encontrado");
+		return problem;
+	}
+
+	@ExceptionHandler(AuthenticationException.class)
+	ProblemDetail handleAuthentication(AuthenticationException ex) {
+		String detail = ex instanceof InsufficientAuthenticationException ? "Entre na sua conta para continuar."
+				: "Sua sessão expirou ou foi encerrada. Entre de novo.";
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, detail);
+		problem.setTitle("Não autenticado");
+		return problem;
+	}
+
+	@ExceptionHandler(AccessDeniedException.class)
+	ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,
+				"Você não tem permissão para acessar este recurso.");
+		problem.setTitle("Acesso negado");
+		return problem;
+	}
+
+	@ExceptionHandler(ApiException.class)
+	ProblemDetail handleApiException(ApiException ex) {
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage());
+		problem.setTitle(ex.getTitle());
 		return problem;
 	}
 

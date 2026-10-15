@@ -36,6 +36,12 @@
   transition: color 0.2s var(--ease), background-color 0.2s var(--ease);
 }
 
+.icon {
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: -3px;
+}
+
 .link:hover {
   background: var(--blue-100);
   color: var(--navy-800);

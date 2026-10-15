@@ -7,6 +7,10 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    // Em desenvolvimento, /api vai para o backend: mesma origem no navegador, sem CORS.
+    proxy: {
+      '/api': process.env.VITE_PROXY_TARGET ?? 'http://localhost:8080',
+    },
   },
   test: {
     environment: 'jsdom',

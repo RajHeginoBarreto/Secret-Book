@@ -205,6 +205,18 @@
   font-size: 14px;
 }
 
+.loginHint {
+  margin-top: 14px;
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.loginHint a {
+  color: var(--navy-800);
+  font-weight: 600;
+}
+
 /* ===== Sucesso ===== */
 
 .success {

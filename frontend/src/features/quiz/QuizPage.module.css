@@ -32,6 +32,27 @@
   box-shadow: var(--shadow-md);
 }
 
+.wide {
+  max-width: 920px;
+}
+
+.help {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.square {
+  border-radius: var(--radius-sm);
+}
+
+.noticeLink {
+  padding: 8px 12px;
+  color: var(--navy-800);
+  font-weight: 600;
+}
+
 .notice {
   margin-bottom: 18px;
   padding: 8px 8px 8px 14px;

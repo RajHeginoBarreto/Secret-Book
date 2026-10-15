@@ -1,67 +1,70 @@
-import type { QuizQuestion } from './quizData'
-import type { Answer } from './quizEngine'
+import type { Answers, QuizQuestion } from './quizTypes'
 
 /**
- * Salvamento automático do progresso no próprio navegador (localStorage).
- * Serve para retomar um quiz interrompido sem precisar de conta.
- * Quando houver login, o resultado final também será salvo no backend.
+ * Salvamento automático do progresso no próprio navegador (localStorage), para retomar um quiz interrompido.
+ * O resultado final fica no servidor; aqui guardamos só o id da última tentativa.
  */
-export const QUIZ_STORAGE_KEY = 'secretbook:quiz-progress:v1'
+export const QUIZ_STORAGE_KEY = 'secretbook:quiz-progress:v2'
+export const LAST_RESULT_KEY = 'secretbook:quiz-last-result'
 
 export interface QuizProgress {
   step: number
-  answers: Answer[]
-  finished: boolean
+  answers: Answers
 }
 
-export function emptyProgress(questionCount: number): QuizProgress {
-  return { step: 0, answers: Array.from({ length: questionCount }, () => null), finished: false }
-}
-
-/** Lê e VALIDA o progresso salvo. Dados ausentes, antigos ou corrompidos são descartados. */
+/** Lê e VALIDA o progresso salvo contra as perguntas atuais. Dados antigos ou corrompidos são descartados. */
 export function loadQuizProgress(questions: QuizQuestion[]): QuizProgress | null {
-  let raw: string | null
-  try {
-    raw = window.localStorage.getItem(QUIZ_STORAGE_KEY)
-  } catch {
-    return null // armazenamento bloqueado (ex.: modo privado restrito)
-  }
+  const raw = read(QUIZ_STORAGE_KEY)
   if (!raw) return null
-
   try {
-    const data: unknown = JSON.parse(raw)
+    const data = JSON.parse(raw) as unknown
     if (typeof data !== 'object' || data === null) return null
-    const { step, answers, finished } = data as Record<string, unknown>
+    const { step, answers } = data as Record<string, unknown>
+    if (!Number.isInteger(step) || (step as number) < 0) return null
+    if (typeof answers !== 'object' || answers === null || Array.isArray(answers)) return null
 
-    if (!Array.isArray(answers) || answers.length !== questions.length) return null
-    const validAnswers = answers.every(
-      (answer, index) =>
-        answer === null ||
-        (Number.isInteger(answer) && (answer as number) >= 0 && (answer as number) < questions[index]!.options.length),
-    )
-    if (!validAnswers) return null
-    if (!Number.isInteger(step) || (step as number) < 0 || (step as number) >= questions.length) return null
-    if (typeof finished !== 'boolean') return null
-    if (finished && answers.some((answer) => answer === null)) return null
-
-    return { step: step as number, answers: answers as Answer[], finished }
+    const bySlug = new Map(questions.map((question) => [question.slug, question]))
+    for (const [slug, chosen] of Object.entries(answers)) {
+      const question = bySlug.get(slug)
+      if (!question || !Array.isArray(chosen)) return null
+      const valid = chosen.every((option) => question.options.some((candidate) => candidate.slug === option))
+      if (!valid || (!question.multiple && chosen.length > 1)) return null
+    }
+    return { step: step as number, answers: answers as Answers }
   } catch {
     return null
   }
 }
 
 export function saveQuizProgress(progress: QuizProgress): void {
-  try {
-    window.localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(progress))
-  } catch {
-    // Sem armazenamento disponível: o quiz continua funcionando, só não é retomável.
-  }
+  write(QUIZ_STORAGE_KEY, JSON.stringify(progress))
 }
 
 export function clearQuizProgress(): void {
+  write(QUIZ_STORAGE_KEY, null)
+}
+
+export function rememberLastResult(id: string): void {
+  write(LAST_RESULT_KEY, id)
+}
+
+export function lastResultId(): string | null {
+  return read(LAST_RESULT_KEY)
+}
+
+function read(key: string): string | null {
   try {
-    window.localStorage.removeItem(QUIZ_STORAGE_KEY)
+    return window.localStorage.getItem(key)
   } catch {
-    // ignorado: ver saveQuizProgress
+    return null // armazenamento bloqueado (ex.: modo privado restrito)
+  }
+}
+
+function write(key: string, value: string | null): void {
+  try {
+    if (value === null) window.localStorage.removeItem(key)
+    else window.localStorage.setItem(key, value)
+  } catch {
+    // Sem armazenamento: o quiz continua funcionando, só não é retomável.
   }
 }

@@ -1,7 +1,9 @@
 import { ArrowLeft, Check, CircleCheck, Info } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
+import { apiRequest, toApiError } from '../../api/client'
 import { Button } from '../../components/ui/Button'
+import { useAuth } from '../auth/AuthContext'
 import { findPlan, PLANS } from '../../data/plans'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { formatPrice, pluralize } from '../../utils/format'
@@ -10,19 +12,24 @@ import styles from './CheckoutDemoPage.module.css'
 
 /**
  * Fluxo DEMONSTRATIVO de assinatura: seleção → resumo → confirmação → sucesso.
- * Não há pagamento, gateway nem persistência: a interface diz isso explicitamente.
- * Quando houver login, a assinatura demonstrativa será registrada no backend.
+ * Não há pagamento nem gateway. Com login, o plano escolhido fica registrado na conta (assinatura demonstrativa);
+ * sem login, nada é salvo. A interface diz isso explicitamente nos dois casos.
  */
 export function CheckoutDemoPage() {
   const { planSlug } = useParams()
   const plan = findPlan(planSlug)
   const navigate = useNavigate()
+  const location = useLocation()
+  const { status } = useAuth()
+  const loggedIn = status === 'authenticated'
   usePageTitle(plan ? `Simular assinatura — ${plan.name}` : 'Plano não encontrado')
 
   // A confirmação vale só para o plano em que foi feita: trocar de plano reinicia o fluxo.
   const [confirmedSlug, setConfirmedSlug] = useState<string | null>(null)
+  const [savedToAccount, setSavedToAccount] = useState(false)
   const [acknowledged, setAcknowledged] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const successRef = useRef<HTMLHeadingElement>(null)
   const isDone = plan !== undefined && confirmedSlug === plan.slug
 
@@ -34,14 +41,28 @@ export function CheckoutDemoPage() {
     return <NotFoundPage />
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!acknowledged) {
       setError('Confirme que entendeu que esta é uma simulação sem cobrança.')
       return
     }
     setError(null)
-    setConfirmedSlug(plan.slug)
+    if (!loggedIn) {
+      setSavedToAccount(false)
+      setConfirmedSlug(plan.slug)
+      return
+    }
+    setSubmitting(true)
+    try {
+      await apiRequest('/api/me/subscription', { method: 'POST', body: { planSlug: plan.slug } })
+      setSavedToAccount(true)
+      setConfirmedSlug(plan.slug)
+    } catch (caught) {
+      setError(toApiError(caught).message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (isDone) {
@@ -58,10 +79,12 @@ export function CheckoutDemoPage() {
           </p>
           <p className={styles.important}>
             <Info size={18} aria-hidden="true" />
-            Nenhum pagamento foi realizado e nenhum dado foi salvo. Este é um protótipo de portfólio.
+            {savedToAccount
+              ? 'Nenhum pagamento foi realizado. A assinatura demonstrativa ficou registrada na sua conta.'
+              : 'Nenhum pagamento foi realizado e nenhum dado foi salvo. Este é um protótipo de portfólio.'}
           </p>
           <div className={styles.actions}>
-            <Button to="/quiz">Fazer o quiz</Button>
+            {savedToAccount ? <Button to="/minha-conta">Ver minha conta</Button> : <Button to="/quiz">Fazer o quiz</Button>}
             <Button to="/#planos" variant="outline">
               Voltar aos planos
             </Button>
@@ -152,14 +175,24 @@ export function CheckoutDemoPage() {
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? 'ack-erro' : undefined}
             />
-            <span>Entendo que esta é uma simulação: nenhum pagamento será feito e nenhum dado será salvo.</span>
+            <span>
+              {loggedIn
+                ? 'Entendo que esta é uma simulação: nenhum pagamento será feito. O plano ficará registrado na minha conta.'
+                : 'Entendo que esta é uma simulação: nenhum pagamento será feito e nenhum dado será salvo.'}
+            </span>
           </label>
           <p id="ack-erro" className={styles.error} role="alert">
             {error}
           </p>
-          <Button type="submit" fullWidth size="lg">
+          <Button type="submit" fullWidth size="lg" loading={submitting}>
             Confirmar simulação
           </Button>
+          {!loggedIn && (
+            <p className={styles.loginHint}>
+              <Link to={`/entrar?voltar=${encodeURIComponent(location.pathname)}`}>Entre na sua conta</Link> para
+              registrar a assinatura demonstrativa e vê-la em "Minha conta".
+            </p>
+          )}
         </form>
       </div>
     </div>

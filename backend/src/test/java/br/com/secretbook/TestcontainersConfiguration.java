@@ -3,11 +3,18 @@ package br.com.secretbook;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
+
+	@Bean
+	@Primary
+	CapturingPasswordResetNotifier capturingPasswordResetNotifier() {
+		return new CapturingPasswordResetNotifier();
+	}
 
 	@Bean
 	@ServiceConnection

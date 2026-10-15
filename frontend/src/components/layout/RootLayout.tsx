@@ -1,4 +1,5 @@
 import { Outlet, ScrollRestoration } from 'react-router'
+import { AuthProvider } from '../../features/auth/AuthProvider'
 import { SiteFooter } from './SiteFooter'
 import { SiteHeader } from './SiteHeader'
 import { WhatsAppButton } from './WhatsAppButton'
@@ -6,7 +7,7 @@ import styles from './RootLayout.module.css'
 
 export function RootLayout() {
   return (
-    <>
+    <AuthProvider>
       <a href="#conteudo" className={styles.skipLink}>
         Pular para o conteúdo
       </a>
@@ -18,6 +19,6 @@ export function RootLayout() {
       <WhatsAppButton />
       {/* Restaura a rolagem entre páginas e rola até a âncora (#planos etc.). */}
       <ScrollRestoration />
-    </>
+    </AuthProvider>
   )
 }

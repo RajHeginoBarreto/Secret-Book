@@ -3,58 +3,81 @@
 Plataforma de descoberta literária que simula um clube de assinatura de livros surpresa: o leitor responde a um
 quiz, recebe um perfil literário e descobre livros "às cegas", guiado por pistas.
 
-> **Protótipo de portfólio.** Planos, valores, depoimentos e assinaturas são demonstrativos. Nenhum pagamento é
-> processado.
+> **Protótipo de portfólio.** Livros, autores, planos, valores, depoimentos e assinaturas são demonstrativos
+> (fictícios). Nenhum pagamento é processado.
 
 ## Estado atual
 
 | Parte | Situação |
 |---|---|
-| `frontend/` (React + TypeScript) | ✅ Landing completa, quiz v1, simulação de assinatura, 404. Sem backend ainda. |
-| `backend/` (Spring Boot) | 🟡 Base pronta: PostgreSQL local, Flyway, Swagger, erros padronizados, CORS e segurança base. Sem endpoints de negócio ainda. |
+| `backend/` (Spring Boot) | ✅ Etapas 1 a 6 implementadas: catálogo, quiz v2 com recomendação explicável, autenticação, área do leitor e painel administrativo. **71 testes passando.** |
+| `frontend/` (React + TypeScript) | 🟡 Todas as telas escritas (catálogo, quiz v2, login/cadastro, minha conta, painel). Compila e passa no lint, mas **as telas novas ainda não têm testes nem foram verificadas no navegador** (ver Pendências). |
 | Arquivos na raiz (`index.html`, `Quiz.html`, `estilo.css`, `img/`) | 📦 Site estático original, mantido como referência até a nova versão ser aprovada. |
+
+## Pendências (o que falta fazer)
+
+- [ ] **Testes do frontend para as telas novas** (Vitest + Testing Library, usando o simulador de API em
+      `src/test/mockApi.ts`):
+  - [ ] Catálogo: lista, filtro por gênero, busca, paginação, página do livro e do autor (incluindo 404).
+  - [ ] Quiz v2: fluxo completo, pergunta condicional (`tipo-de-magia` só aparece após escolher "magia"),
+        opção exclusiva "Nenhum" na pergunta de temas, retomada do progresso salvo, envio e tela de resultado
+        (revelar livro, justificativas, avaliação só com login).
+  - [ ] Autenticação: login (sucesso, erro e redirecionamento `?voltar=`), cadastro com erros de campo vindos da
+        API, esqueci/redefinir senha, `RequireAuth` redirecionando visitantes e mostrando 403 para não-admins.
+  - [ ] Minha conta: visão geral, biblioteca (status, favorito, remover), histórico, avaliações, perfil e troca
+        de senha.
+  - [ ] Painel: visão geral, cadastro/edição/exclusão de livros, autores, gêneros, usuários (papel e acesso),
+        avaliações, assinaturas e pesos da recomendação.
+  - [ ] Simulação de assinatura com login (grava na conta) e sem login (não grava).
+- [ ] **Verificar tudo no navegador** com banco + backend + frontend rodando juntos: fluxos reais, layout no
+      celular (largura ~375 px) e mensagens de erro.
+- [ ] **Escrever a seção "Como funciona a recomendação"** neste README (resumo do que está documentado em
+      `backend/src/main/java/br/com/secretbook/quiz/engine/RecommendationEngine.java`).
+- [ ] **Logo pesado:** `frontend/src/assets/logo.svg` tem ~1,5 MB (PNG embutido em SVG). Trocar por uma versão
+      vetorial ou otimizada.
+- [ ] **E-mail de verdade** para a recuperação de senha (hoje o link sai só no log do backend; ver
+      `LoggingPasswordResetNotifier`).
+- [ ] **Limite de tentativas de login** (proteção contra força bruta), ainda não implementado.
+- [ ] Decidir quando aposentar o site estático da raiz.
 
 ## Tecnologias
 
 **Frontend**: React 19, TypeScript 6 (modo estrito), Vite 8, React Router 8, CSS Modules, Lucide (ícones),
 Vitest + Testing Library (testes).
 
-**Backend**: Java 21, Spring Boot 4.1, Spring Web MVC, Spring Data JPA, Bean Validation, Spring Security,
-Flyway, PostgreSQL 18, springdoc-openapi (Swagger), Actuator, Testcontainers. O Maven vem pelo Maven Wrapper
-(`mvnw`), sem instalação global.
+**Backend**: Java 21, Spring Boot 4.1, Spring Web MVC, Spring Data JPA, Bean Validation, Spring Security
+(OAuth2 Resource Server com JWT), Flyway, PostgreSQL 18, springdoc-openapi (Swagger), Actuator, Testcontainers.
+O Maven vem pelo Maven Wrapper (`mvnw`), sem instalação global.
 
 ## Pré-requisitos
 
 - Node.js 22+ e npm
-- JDK 21 (ex.: Eclipse Temurin 21). Confira com `java -version`.
-- Docker Desktop **em execução** (usado pelos testes do backend)
+- JDK 21 (ex.: Eclipse Temurin 21). Confira com `java -version`; se aparecer outra versão, defina `JAVA_HOME`
+  apontando para o JDK 21.
+- Docker Desktop **em execução** (banco local e testes do backend)
 
 ## Como rodar
 
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev        # http://localhost:5173
-```
-
-| Comando | O que faz |
-|---|---|
-| `npm run dev` | Servidor de desenvolvimento com recarga automática |
-| `npm test` | Roda todos os testes uma vez |
-| `npm run test:watch` | Testes em modo observação |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | Checagem de tipos do TypeScript |
-| `npm run build` | Typecheck + build de produção em `frontend/dist` |
-
-### Backend
+### 1. Banco e backend
 
 ```bash
 cd backend
 docker compose up -d       # PostgreSQL local na porta 5433
 ./mvnw spring-boot:run     # Windows: mvnw.cmd spring-boot:run  →  http://localhost:8080
 ```
+
+As migrações do Flyway criam as tabelas e os dados demonstrativos (24 livros fictícios, 12 autores, 4 gêneros,
+perguntas do quiz e 3 planos) na primeira subida.
+
+**Administrador inicial.** Nenhuma senha fica no código. Para criar o primeiro admin, defina as variáveis abaixo
+antes de subir o backend; se a conta ainda não existir, ela é criada com o papel ADMIN:
+
+```bash
+# PowerShell
+$env:ADMIN_EMAIL='seu-email@exemplo.com'; $env:ADMIN_PASSWORD='SuaSenhaForte123'; .\mvnw.cmd spring-boot:run
+```
+
+Depois é só entrar em `/entrar` e abrir `/admin`. Pelo próprio painel dá para promover outros usuários.
 
 | Endereço | O que é |
 |---|---|
@@ -68,60 +91,96 @@ docker compose up -d       # PostgreSQL local na porta 5433
 | `docker compose down` | Para o banco local (os dados ficam no volume `secretbook-pgdata`) |
 | `docker compose down -v` | Para o banco e apaga os dados locais |
 
-**Variáveis de ambiente** (todas opcionais em desenvolvimento; os valores padrão batem com o `compose.yaml`):
+### 2. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:5173  (o Vite encaminha /api para o backend na 8080)
+```
+
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento com recarga automática |
+| `npm test` | Roda todos os testes uma vez |
+| `npm run test:watch` | Testes em modo observação |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Checagem de tipos do TypeScript |
+| `npm run build` | Typecheck + build de produção em `frontend/dist` |
+
+### Variáveis de ambiente do backend
+
+Todas são opcionais em desenvolvimento.
 
 | Variável | Padrão | Uso |
 |---|---|---|
 | `DB_URL` | `jdbc:postgresql://localhost:5433/secretbook` | Endereço do banco |
 | `DB_USERNAME` / `DB_PASSWORD` | `secretbook` / `secretbook` | Credenciais do banco (só para uso local) |
 | `DB_PORT` | `5433` | Porta do host usada pelo `compose.yaml` |
+| `JWT_SECRET` | chave de desenvolvimento | Chave dos tokens de login (mínimo 32 caracteres). **Troque fora do ambiente local.** |
+| `AUTH_TOKEN_TTL` | `12h` | Duração de uma sessão |
+| `FRONTEND_URL` | `http://localhost:5173` | Usado para montar o link de redefinição de senha |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` | vazio | Administrador inicial (ver acima) |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:5173` | Origens do frontend autorizadas, separadas por vírgula |
 | `PORT` | `8080` | Porta HTTP da API |
 
+Variável do frontend: `VITE_API_URL` (padrão vazio = mesma origem, via proxy do Vite).
+
 > A porta do banco é **5433**, e não 5432, para não conflitar com um PostgreSQL já instalado na máquina.
+
+## API (resumo)
+
+A documentação completa está no Swagger. Rotas públicas, de leitor logado e de administrador:
+
+| Área | Rotas | Acesso |
+|---|---|---|
+| Catálogo | `GET /api/genres`, `/api/books?genre=&q=&page=`, `/api/books/{slug}`, `/api/authors/{slug}` | Público |
+| Quiz | `GET /api/quiz`, `POST /api/quiz/attempts`, `GET /api/quiz/attempts/{id}` | Público (tentativas de uma conta só abrem para o dono ou admin) |
+| Planos | `GET /api/plans` | Público |
+| Autenticação | `POST /api/auth/register`, `/login`, `/password/forgot`, `/password/reset` | Público |
+| Sessão | `GET/PATCH /api/auth/me`, `POST /api/auth/logout`, `POST /api/auth/password/change` | Logado |
+| Minha conta | `/api/me/library`, `/api/me/feedback`, `/api/me/quiz-attempts`, `/api/me/subscription` | Logado |
+| Painel | `/api/admin/**` (estatísticas, livros, autores, gêneros, usuários, avaliações, assinaturas, pesos) | Admin |
 
 ## Backend: convenções
 
-- **Migrações**: o esquema do banco é criado só pelo Flyway, em `backend/src/main/resources/db/migration`
-  (`V1__descricao.sql`, `V2__...`). O Hibernate apenas valida (`ddl-auto=validate`). Enquanto não houver migrações,
-  o Flyway avisa "No migrations found" no log; isso é esperado até a etapa do catálogo.
+- **Organização por funcionalidade**: `catalog`, `quiz` (com o motor em `quiz/engine`, Java puro e testado sem
+  banco), `auth`, `account`, `admin`, `common`, `config`.
+- **Migrações**: o esquema é criado só pelo Flyway, em `backend/src/main/resources/db/migration`
+  (`V1__catalog`, `V2__quiz`, `V3__auth`, `V4__account`). O Hibernate apenas valida (`ddl-auto=validate`).
 - **Erros**: todas as respostas de erro seguem o padrão [Problem Details (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457),
-  com `Content-Type: application/problem+json` e textos em português. Erros de validação trazem a lista `errors`:
-
-  ```json
-  {
-    "status": 400,
-    "title": "Dados inválidos",
-    "detail": "Um ou mais campos estão inválidos.",
-    "instance": "/api/...",
-    "errors": [{ "field": "title", "message": "é obrigatório" }]
-  }
-  ```
-
-  Para "não encontrado", lance `ResourceNotFoundException` com a mensagem a exibir. Erros inesperados viram 500 com
-  mensagem genérica; o detalhe técnico vai só para o log. Os textos dos erros padrão do Spring ficam em
-  `messages.properties`.
-- **Segurança**: sem sessão nem login por enquanto. Tudo sob `/api/**`, o Swagger e o health são públicos; qualquer
-  outro caminho é negado (403). A autenticação real chega na etapa 4.
-- **CORS**: liberado apenas para `/api/**` e para as origens de `CORS_ALLOWED_ORIGINS`.
+  com `Content-Type: application/problem+json` e textos em português, inclusive 401 e 403. Erros de validação
+  trazem a lista `errors` (`[{ "field": "title", "message": "é obrigatório" }]`). Use `ResourceNotFoundException`
+  (404) ou `ApiException` (400, 401, 403, 409) para erros de negócio. Erros inesperados viram 500 com mensagem
+  genérica; o detalhe técnico vai só para o log.
+- **Autenticação**: o login devolve um JWT (HS256) que carrega o id de uma sessão gravada no banco. A cada
+  requisição a sessão é conferida, então "Sair", troca de senha, desativação da conta e mudança de papel valem na
+  hora. Senhas com BCrypt; o link de redefinição guarda só o hash (SHA-256) e vale 30 minutos.
+- **Testes de integração**: estendem `IntegrationTest` (aplicação completa + PostgreSQL em contêiner compartilhado),
+  e cada teste roda em uma transação desfeita no final.
 
 ## Estrutura do frontend
 
 ```
 frontend/src/
+├── api/               # cliente HTTP (erros da API em português), token de sessão, erros de formulário
 ├── components/
-│   ├── layout/        # cabeçalho (com menu mobile), rodapé, layout raiz, botão do WhatsApp
-│   └── ui/            # Button, SectionHeader: peças reutilizáveis do design system
+│   ├── layout/        # cabeçalho (menu mobile, Entrar/Minha conta/Painel), rodapé, layout raiz
+│   └── ui/            # Button, campos de formulário, paginação, estados de carregamento/erro/vazio
 ├── config/site.ts     # dados públicos do site (nome, WhatsApp)
-├── data/              # planos, FAQ e depoimentos demonstrativos
+├── data/              # planos, FAQ e depoimentos demonstrativos da landing
 ├── features/
-│   ├── landing/       # landing page, dividida em uma seção por arquivo
-│   ├── quiz/          # quizData (perguntas), quizEngine (cálculo), quizStorage (progresso), telas
+│   ├── landing/       # landing page, uma seção por arquivo
+│   ├── catalog/       # catálogo, página do livro e do autor
+│   ├── quiz/          # quiz v2 (perguntas da API), resultado e cartões de recomendação
+│   ├── auth/          # sessão (AuthProvider), login, cadastro, senha, proteção de rotas
+│   ├── account/       # minha conta: visão geral, biblioteca, histórico, avaliações, perfil
+│   ├── admin/         # painel administrativo
 │   ├── plans/         # simulação de assinatura
 │   └── misc/          # 404
-├── hooks/             # usePageTitle
+├── hooks/             # usePageTitle, useApi
 ├── styles/            # tokens.css (paleta, tipografia, sombras) e global.css
-├── test/              # setup dos testes e helper renderRoute
+├── test/              # setup dos testes, renderRoute e simulador de API (mockApi)
 ├── router.tsx         # tabela de rotas
 └── main.tsx           # ponto de entrada
 ```
@@ -130,53 +189,42 @@ frontend/src/
 
 | Rota | Página |
 |---|---|
-| `/` | Landing page (âncoras: `#como-funciona`, `#pistas`, `#caixa`, `#descobertas`, `#beneficios`, `#planos`, `#depoimentos`, `#faq`, `#contato`) |
-| `/quiz` | Quiz literário v1 |
-| `/assinar/:planSlug` | Simulação de assinatura (`leitor-casual`, `leitor-avido`, `maratona-literaria`) |
+| `/` | Landing page |
+| `/catalogo`, `/livros/:slug`, `/autores/:slug` | Catálogo demonstrativo |
+| `/quiz`, `/quiz/resultado/:id` | Quiz v2 e resultado com recomendações |
+| `/assinar/:planSlug` | Simulação de assinatura (com login, fica registrada na conta) |
+| `/entrar`, `/cadastro`, `/esqueci-senha`, `/redefinir-senha` | Autenticação |
+| `/minha-conta` (+ `/biblioteca`, `/historico`, `/avaliacoes`, `/perfil`) | Área do leitor (exige login) |
+| `/admin` (+ `/livros`, `/autores`, `/generos`, `/usuarios`, `/avaliacoes`, `/assinaturas`, `/recomendacao`) | Painel administrativo (exige papel ADMIN) |
 | qualquer outra | Página 404 |
 
-## Como o perfil do quiz é calculado (v1)
+## Decisões
 
-A regra é a mesma do `Quiz.html` original, agora isolada em `quizEngine.ts` e coberta por testes:
-
-1. Cada uma das 6 respostas soma **1 ponto** ao gênero da opção escolhida (mistério, romance, fantasia ou ficção
-   científica).
-2. Os gêneros são ordenados por pontos. **Empate**: vence o gênero escolhido mais recentemente, porque as últimas
-   perguntas falam mais do livro em si.
-3. Se o 2º gênero tiver **2 pontos ou mais**, o perfil combina os dois primeiros (ex.: fantasia + romance =
-   "Romantasia"). Caso contrário, o perfil é o gênero principal puro.
-4. As barras de resultado mostram **quantas respostas** apontaram para cada gênero (ex.: "3 de 6"). Não é uma
-   probabilidade nem um percentual de compatibilidade com livros.
-
-O progresso fica salvo no `localStorage` do navegador (`secretbook:quiz-progress:v1`), o que permite retomar um quiz
-interrompido. Dados corrompidos são descartados com segurança.
-
-## Decisões desta etapa
-
-- **Código em inglês, interface em português.** É o padrão de mercado e combina com os nomes das entidades
-  planejadas (`Book`, `Author`, `QuizAttempt`).
-- **CSS Modules + tokens.** A paleta do `estilo.css` original virou variáveis em `styles/tokens.css`, e cada
-  componente tem seu `.module.css`, com nomes de classe isolados (sem conflitos).
-- **Sem biblioteca de componentes.** Os elementos nativos (`<details>`, `<fieldset>`, rádios) já são acessíveis,
-  e uma biblioteca adicionaria peso sem benefício real neste momento.
-- **Dados ilustrativos sempre sinalizados.** Os pacotes de "Descobertas" e o cartão de pistas de exemplo não
-  representam livros reais. O "livro do mês" com nota e páginas inventadas do quiz antigo foi removido.
+- **Código em inglês, interface em português.**
+- **CSS Modules + tokens**, sem biblioteca de componentes: os elementos nativos já são acessíveis.
+- **Dados ilustrativos sempre sinalizados.** O catálogo usa livros e autores fictícios, para não inventar dados
+  sobre obras reais.
+- **Recomendação explicável**: cada livro recomendado vem com a nota de cada critério (gênero, ritmo, clima,
+  tamanho) e frases dizendo por que foi escolhido. Os pesos ficam no banco e são editáveis no painel. Livros com
+  temas que o leitor pediu para evitar, já lidos ou avaliados como "não combina" nunca são recomendados.
+- **Auditoria fora do escopo** (decisão do projeto); o painel administrativo é a etapa final.
 
 ## Limitações conhecidas
 
-- **Logo pesado:** `frontend/src/assets/logo.svg` tem ~1,5 MB (um PNG 1536×1024 embutido num SVG, com fundo branco
-  e paleta roxo/terracota). Recomendo substituir por uma versão vetorial ou otimizada.
-- **Sem persistência no servidor:** quiz e simulação de assinatura não são salvos no backend (isso depende das
-  etapas de backend e autenticação).
-- **Quiz v1 é simples:** 6 perguntas e 4 gêneros, sem perguntas condicionais, temas a evitar, extensão ou idioma.
-  Isso será substituído pelo quiz v2, servido pela API.
-- **Contato:** o formulário apenas monta a mensagem e abre o WhatsApp. Nada passa por servidor próprio.
+- **Recuperação de senha sem e-mail:** o link aparece no log do backend (protótipo).
+- **Token no `localStorage`:** simples para o protótipo, mas vulnerável se houver XSS; a sessão pode ser revogada no
+  servidor a qualquer momento.
+- **Sem limite de tentativas de login.**
+- **Tentativas anônimas do quiz** não são associadas à conta se a pessoa fizer login depois.
+- **Contato:** o formulário apenas monta a mensagem e abre o WhatsApp.
 
-## Próximas etapas
+## Roadmap
 
-1. ~~Backend base: configuração do PostgreSQL local, Flyway, OpenAPI (Swagger), tratamento de erros, CORS.~~ ✅
-2. Catálogo: livros, autores e gêneros (modelagem, migrações, dados demonstrativos, API e telas).
-3. Quiz v2 no backend + motor de recomendação explicável (pesos configuráveis, justificativas, testes).
-4. Autenticação: cadastro, login, logout, recuperação de senha, papéis de usuário e administrador.
-5. Dashboard: biblioteca, favoritos, histórico, feedback de recomendações, assinatura demonstrativa persistida.
-6. Painel administrativo (etapa final; auditoria fora do escopo).
+1. ~~Backend base: PostgreSQL local, Flyway, OpenAPI (Swagger), tratamento de erros, CORS.~~ ✅
+2. ~~Catálogo: livros, autores e gêneros (modelagem, migrações, dados demonstrativos, API e telas).~~ ✅
+3. ~~Quiz v2 no backend + motor de recomendação explicável (pesos configuráveis, justificativas, testes).~~ ✅
+4. ~~Autenticação: cadastro, login, logout, recuperação de senha, papéis de usuário e administrador.~~ ✅
+5. ~~Dashboard: biblioteca, favoritos, histórico, feedback de recomendações, assinatura demonstrativa persistida.~~ ✅
+6. ~~Painel administrativo (etapa final; auditoria fora do escopo).~~ ✅
+
+Implementado; falta concluir os itens de **Pendências** (testes do frontend e verificação no navegador).

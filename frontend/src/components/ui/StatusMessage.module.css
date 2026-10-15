@@ -1,0 +1,104 @@
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 32px 20px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.box p {
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--blue-200);
+  border-top-color: var(--navy-800);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.error {
+  justify-content: flex-start;
+  padding: 16px 18px;
+  background: var(--danger-bg);
+  border-radius: var(--radius-md);
+  color: var(--danger);
+  text-align: left;
+}
+
+.error > div {
+  flex: 1;
+  min-width: 200px;
+}
+
+.error strong {
+  color: var(--danger);
+}
+
+.error p {
+  color: var(--navy-900);
+}
+
+.empty {
+  flex-direction: column;
+  padding: 44px 20px;
+  background: var(--surface);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+}
+
+.empty svg {
+  color: var(--kraft-dark);
+}
+
+.empty strong {
+  color: var(--navy-900);
+  font-family: var(--font-serif);
+  font-size: 20px;
+}
+
+.empty p {
+  max-width: 440px;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--navy-900);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.notice svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.info {
+  background: var(--info-bg);
+}
+
+.success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

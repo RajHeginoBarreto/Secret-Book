@@ -3,10 +3,10 @@ export interface NavItem {
   to: string
 }
 
-/** Links da navegação principal (âncoras da landing page). */
+/** Links da navegação principal. */
 export const MAIN_NAV: NavItem[] = [
   { label: 'Como funciona', to: '/#como-funciona' },
-  { label: 'Pistas', to: '/#pistas' },
+  { label: 'Catálogo', to: '/catalogo' },
   { label: 'Planos', to: '/#planos' },
   { label: 'Dúvidas', to: '/#faq' },
   { label: 'Contato', to: '/#contato' },
