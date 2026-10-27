@@ -1,6 +1,7 @@
 package br.com.secretbook.account;
 
 import br.com.secretbook.account.dto.AccountDtos.AttemptSummary;
+import br.com.secretbook.account.dto.AccountDtos.BookCommentResponse;
 import br.com.secretbook.account.dto.AccountDtos.FeedbackResponse;
 import br.com.secretbook.account.dto.AccountDtos.LibraryEntryResponse;
 import br.com.secretbook.auth.AppUser;
@@ -8,11 +9,13 @@ import br.com.secretbook.auth.AppUserRepository;
 import br.com.secretbook.catalog.Book;
 import br.com.secretbook.catalog.BookRepository;
 import br.com.secretbook.catalog.CatalogMapper;
+import br.com.secretbook.common.error.ApiException;
 import br.com.secretbook.common.error.ResourceNotFoundException;
 import br.com.secretbook.quiz.AttemptRecommendation;
 import br.com.secretbook.quiz.QuizAttempt;
 import br.com.secretbook.quiz.QuizAttemptRepository;
 import br.com.secretbook.quiz.ReaderHistory;
+import java.time.Clock;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-/** Biblioteca, favoritos, avaliações das recomendações e histórico do quiz de cada leitor. */
+/** Biblioteca, favoritos, comentários, avaliações das recomendações e histórico do quiz de cada leitor. */
 @Service
 @Transactional
 public class AccountService implements ReaderHistory {
@@ -36,13 +39,16 @@ public class AccountService implements ReaderHistory {
 
 	private final AppUserRepository users;
 
+	private final Clock clock;
+
 	public AccountService(UserBookRepository library, RecommendationFeedbackRepository feedback,
-			QuizAttemptRepository attempts, BookRepository books, AppUserRepository users) {
+			QuizAttemptRepository attempts, BookRepository books, AppUserRepository users, Clock clock) {
 		this.library = library;
 		this.feedback = feedback;
 		this.attempts = attempts;
 		this.books = books;
 		this.users = users;
+		this.clock = clock;
 	}
 
 	// ===== Biblioteca =====
@@ -57,21 +63,52 @@ public class AccountService implements ReaderHistory {
 		Book book = findBook(bookSlug);
 		return library.findById(new UserBook.Id(userId, book.getId()))
 			.map(AccountService::toEntry)
-			.orElseGet(() -> new LibraryEntryResponse(CatalogMapper.toSummary(book), null, false, null));
+			.orElseGet(() -> emptyEntry(book));
 	}
 
-	/** Grava o estado do livro na biblioteca; sem status e sem favorito, o livro é removido. */
+	/** Grava o estado do livro na biblioteca; sem status e sem favorito, o livro (e o comentário) é removido. */
 	public LibraryEntryResponse updateLibrary(Long userId, String bookSlug, ReadingStatus status, boolean favorite) {
 		Book book = findBook(bookSlug);
 		UserBook.Id id = new UserBook.Id(userId, book.getId());
 		if (status == null && !favorite) {
 			library.deleteById(id);
-			return new LibraryEntryResponse(CatalogMapper.toSummary(book), null, false, null);
+			return emptyEntry(book);
 		}
 		UserBook entry = library.findById(id).orElseGet(() -> new UserBook(users.getReferenceById(userId), book));
 		entry.setStatus(status);
 		entry.setFavorite(favorite);
 		return toEntry(library.saveAndFlush(entry));
+	}
+
+	// ===== Comentários sobre livros lidos =====
+
+	/** Comenta (ou edita o comentário de) um livro que o leitor já marcou como lido. */
+	public LibraryEntryResponse review(Long userId, String bookSlug, Integer rating, String comment) {
+		Book book = findBook(bookSlug);
+		UserBook entry = library.findById(new UserBook.Id(userId, book.getId()))
+			.filter(found -> found.getStatus() == ReadingStatus.READ)
+			.orElseThrow(() -> ApiException.badRequest("Marque o livro como lido para poder comentar."));
+		entry.review(rating, comment, clock.instant());
+		return toEntry(library.saveAndFlush(entry));
+	}
+
+	public void deleteReview(Long userId, String bookSlug) {
+		Book book = findBook(bookSlug);
+		library.findById(new UserBook.Id(userId, book.getId())).ifPresent(entry -> {
+			entry.clearReview();
+			library.saveAndFlush(entry);
+		});
+	}
+
+	/** Comentários públicos de um livro ativo do catálogo, do mais novo ao mais antigo. */
+	@Transactional(readOnly = true)
+	public List<BookCommentResponse> bookComments(String bookSlug) {
+		Book book = books.findBySlugAndActiveTrue(bookSlug)
+			.orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado."));
+		return library.findReviews(book.getId(), ReadingStatus.READ).stream()
+			.map(entry -> new BookCommentResponse(entry.getUser().getUsername(), entry.getRating(), entry.getComment(),
+					entry.getReviewedAt()))
+			.toList();
 	}
 
 	// ===== Avaliações das recomendações =====
@@ -126,7 +163,11 @@ public class AccountService implements ReaderHistory {
 
 	private static LibraryEntryResponse toEntry(UserBook entry) {
 		return new LibraryEntryResponse(CatalogMapper.toSummary(entry.getBook()), entry.getStatus(), entry.isFavorite(),
-				entry.getUpdatedAt());
+				entry.getUpdatedAt(), entry.getRating(), entry.getComment(), entry.getReviewedAt());
+	}
+
+	private static LibraryEntryResponse emptyEntry(Book book) {
+		return new LibraryEntryResponse(CatalogMapper.toSummary(book), null, false, null, null, null, null);
 	}
 
 	private static FeedbackResponse toFeedback(RecommendationFeedback entry) {

@@ -26,7 +26,7 @@ class AccountApiTest extends IntegrationTest {
 
 	@Test
 	void manageBooksInTheLibrary() throws Exception {
-		String token = registerReader("biblioteca@example.com");
+		String token = registerReader("biblioteca");
 
 		mockMvc.perform(get("/api/me/library/um-verao-em-paraty").with(bearer(token)))
 			.andExpect(status().isOk())
@@ -56,8 +56,8 @@ class AccountApiTest extends IntegrationTest {
 
 	@Test
 	void libraryIsPrivateToEachReader() throws Exception {
-		String ana = registerReader("ana-privada@example.com");
-		String bia = registerReader("bia-privada@example.com");
+		String ana = registerReader("ana-privada");
+		String bia = registerReader("bia-privada");
 		mockMvc.perform(put("/api/me/library/um-verao-em-paraty").with(bearer(ana))
 			.contentType(MediaType.APPLICATION_JSON).content("{\"status\": \"READ\", \"favorite\": false}"));
 
@@ -66,7 +66,7 @@ class AccountApiTest extends IntegrationTest {
 
 	@Test
 	void validatesLibraryUpdates() throws Exception {
-		String token = registerReader("validacao@example.com");
+		String token = registerReader("validacao");
 		mockMvc.perform(put("/api/me/library/um-verao-em-paraty").with(bearer(token))
 				.contentType(MediaType.APPLICATION_JSON).content("{\"status\": \"READING\"}"))
 			.andExpect(status().isBadRequest());
@@ -77,7 +77,7 @@ class AccountApiTest extends IntegrationTest {
 
 	@Test
 	void booksAlreadyReadOrRejectedAreNotRecommendedAgain() throws Exception {
-		String token = registerReader("refinamento@example.com");
+		String token = registerReader("refinamento");
 
 		String first = submitQuiz(token);
 		String topBook = JsonPath.read(first, "$.recommendations[0].book.slug");
@@ -105,8 +105,8 @@ class AccountApiTest extends IntegrationTest {
 
 	@Test
 	void quizHistoryBelongsToTheReader() throws Exception {
-		String owner = registerReader("historico@example.com");
-		String stranger = registerReader("curiosa@example.com");
+		String owner = registerReader("historico");
+		String stranger = registerReader("curiosa");
 		String attemptId = JsonPath.read(submitQuiz(owner), "$.id");
 
 		mockMvc.perform(get("/api/me/quiz-attempts").with(bearer(owner)))
@@ -118,13 +118,13 @@ class AccountApiTest extends IntegrationTest {
 		mockMvc.perform(get("/api/quiz/attempts/" + attemptId).with(bearer(stranger))).andExpect(status().isNotFound());
 		mockMvc.perform(get("/api/quiz/attempts/" + attemptId)).andExpect(status().isNotFound());
 
-		String admin = loginAsNewAdmin("admin-historico@example.com");
+		String admin = loginAsNewAdmin("admin-historico");
 		mockMvc.perform(get("/api/quiz/attempts/" + attemptId).with(bearer(admin))).andExpect(status().isOk());
 	}
 
 	@Test
 	void demoSubscriptionLifecycle() throws Exception {
-		String token = registerReader("assinante@example.com");
+		String token = registerReader("assinante");
 
 		mockMvc.perform(get("/api/me/subscription").with(bearer(token))).andExpect(status().isNoContent());
 

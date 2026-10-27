@@ -92,7 +92,9 @@ public final class AdminDtos {
 
 	// ===== Usuários =====
 
-	public record UserRow(Long id, String name, String email, Role role, boolean enabled, Instant createdAt) {
+	/** {@code email} é nulo em contas criadas só com nome de usuário. */
+	public record UserRow(Long id, String name, String username, String email, Role role, boolean enabled,
+			Instant createdAt) {
 	}
 
 	public record UserUpdateRequest(Role role, Boolean enabled) {
@@ -100,11 +102,11 @@ public final class AdminDtos {
 
 	// ===== Avaliações e assinaturas =====
 
-	public record FeedbackRow(Long id, String userName, String userEmail, String bookSlug, String bookTitle,
+	public record FeedbackRow(Long id, String userName, String username, String userEmail, String bookSlug, String bookTitle,
 			boolean useful, String comment, UUID attemptId, Instant updatedAt) {
 	}
 
-	public record SubscriptionRow(Long id, String userName, String userEmail, String planName,
+	public record SubscriptionRow(Long id, String userName, String username, String userEmail, String planName,
 			Subscription.Status status, Instant startedAt, Instant canceledAt) {
 	}
 

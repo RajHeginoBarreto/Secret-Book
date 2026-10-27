@@ -1,0 +1,38 @@
+.page {
+  display: grid;
+  gap: 32px;
+  width: 100%;
+  max-width: 780px;
+  margin-inline: auto;
+  padding: 48px var(--gutter) 96px;
+}
+
+.page h2 {
+  margin-bottom: 10px;
+  font-size: 26px;
+}
+
+.page ul {
+  display: grid;
+  gap: 8px;
+  padding-left: 20px;
+}
+
+.page p,
+.page li {
+  color: var(--text-muted);
+}
+
+.page strong {
+  color: var(--text);
+}
+
+.page a {
+  color: var(--kraft-dark);
+  font-weight: 600;
+}
+
+.note {
+  font-size: 14px;
+  font-style: italic;
+}

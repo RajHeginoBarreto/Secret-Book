@@ -113,7 +113,81 @@ p {
   border: 0;
 }
 
+/* Entrada suave ao rolar (ver hooks/useReveal.ts). Sem JS, tudo aparece normalmente. */
+[data-reveal] {
+  transition:
+    opacity 0.8s var(--ease),
+    transform 0.8s var(--ease);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal="hidden"] {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+/* Fundo de cortina metalizada preta, como o painel do estande. */
+.tinsel {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--ink-950);
+  color: var(--text-on-dark);
+}
+
+.tinsel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0 3px,
+      rgba(255, 255, 255, 0.05) 3px 4px,
+      rgba(255, 255, 255, 0) 4px 9px,
+      rgba(255, 255, 255, 0.09) 9px 10px
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 30%, rgba(255, 255, 255, 0.04) 70%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent);
+  mask-image: linear-gradient(180deg, #000 60%, transparent);
+}
+
+.tinsel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 244, 214, 0.1) 45%, transparent 60%);
+  background-size: 250% 100%;
+  animation: tinsel-shimmer 9s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes tinsel-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* Textura leve de papel para seções claras. */
+.paper {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(rgba(154, 115, 71, 0.07) 1px, transparent 1px),
+    radial-gradient(rgba(154, 115, 71, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px, 37px 37px;
+  background-position: 0 0, 11px 17px;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  [data-reveal="hidden"] {
+    opacity: 1;
+    transform: none;
+  }
+
   *,
   *::before,
   *::after {

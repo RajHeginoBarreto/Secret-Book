@@ -23,7 +23,7 @@ export function AdminUsersPage() {
   const [error, setError] = useState<string | null>(null)
 
   const update = async (target: AdminUser, change: { role?: Role; enabled?: boolean }) => {
-    if (change.enabled === false && !window.confirm(`Desativar ${target.email}? As sessões abertas serão encerradas.`)) return
+    if (change.enabled === false && !window.confirm(`Desativar ${target.username}? As sessões abertas serão encerradas.`)) return
     setError(null)
     try {
       const saved = await apiRequest<AdminUser>(`/api/admin/users/${target.id}`, { method: 'PATCH', body: change })
@@ -52,7 +52,7 @@ export function AdminUsersPage() {
 
       <form className={styles.toolbar} role="search" onSubmit={handleSearch}>
         <label htmlFor="busca-usuarios" className="visually-hidden">
-          Buscar por nome ou e-mail
+          Buscar por nome de usuário ou e-mail
         </label>
         <input
           key={query}
@@ -60,7 +60,7 @@ export function AdminUsersPage() {
           name="busca"
           type="search"
           defaultValue={query}
-          placeholder="Buscar por nome ou e-mail"
+          placeholder="Buscar por nome de usuário ou e-mail"
           className={styles.search}
         />
         <Button type="submit" variant="outline">
@@ -81,7 +81,7 @@ export function AdminUsersPage() {
                 <thead>
                   <tr>
                     <th scope="col">Nome</th>
-                    <th scope="col">E-mail</th>
+                    <th scope="col">Usuário</th>
                     <th scope="col">Desde</th>
                     <th scope="col">Papel</th>
                     <th scope="col">Acesso</th>
@@ -96,11 +96,11 @@ export function AdminUsersPage() {
                           {user.name}
                           {isMe && <div className={styles.muted}>(você)</div>}
                         </td>
-                        <td>{user.email}</td>
+                        <td>{user.username}{user.email && <div className={styles.muted}>{user.email}</div>}</td>
                         <td>{formatDate(user.createdAt)}</td>
                         <td>
                           <label className="visually-hidden" htmlFor={`papel-${user.id}`}>
-                            Papel de {user.email}
+                            Papel de {user.username}
                           </label>
                           <select
                             id={`papel-${user.id}`}

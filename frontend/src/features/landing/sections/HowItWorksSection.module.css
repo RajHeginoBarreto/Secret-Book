@@ -1,64 +1,153 @@
 .section {
-  padding: 96px 0;
+  padding-block: clamp(72px, 10vw, 120px);
+}
+
+.inner {
+  display: grid;
+  gap: 56px;
+}
+
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  align-items: center;
+  gap: 48px;
+}
+
+.intro > header {
+  margin-bottom: 0;
+}
+
+.poster {
+  justify-self: center;
+  position: relative;
+  width: min(100%, 340px);
+  padding: 30px 28px 26px;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 95, 60, 0.04) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(90deg, rgba(120, 95, 60, 0.04) 0 2px, transparent 2px 4px),
+    #f1e8d6;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 26px 50px -16px rgba(23, 20, 18, 0.35);
+  color: var(--ink-950);
+  font-family: var(--font-hand);
+  rotate: 2deg;
+  transition: rotate 0.5s var(--ease-spring);
+}
+
+.poster:hover {
+  rotate: 0deg;
+}
+
+/* Tachinhas nos cantos */
+.poster::before,
+.poster::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #5b534c, #0b0a09);
+}
+
+.poster::before {
+  left: 10px;
+}
+
+.poster::after {
+  right: 10px;
+}
+
+.posterTitle {
+  font-size: 50px;
+  font-weight: 700;
+  line-height: 0.9;
+  text-align: center;
+}
+
+.posterSub {
+  margin: 14px 0 10px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.poster ul {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  font-size: 25px;
+  line-height: 1.1;
+}
+
+.poster li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.posterFoot {
+  margin-top: 16px;
+  font-size: 21px;
+  line-height: 1.1;
+  text-align: center;
 }
 
 .steps {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
   list-style: none;
+  counter-reset: step;
 }
 
 .step {
-  padding: 16px 16px 28px;
-  background: var(--surface);
+  position: relative;
+  height: 100%;
+  padding: 30px 26px 28px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+  transition:
+    transform 0.4s var(--ease),
+    box-shadow 0.4s var(--ease),
+    border-color 0.4s var(--ease);
 }
 
 .step:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
+  border-color: var(--kraft);
   box-shadow: var(--shadow-md);
 }
 
-.illustration {
-  height: 168px;
-  margin-bottom: 22px;
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-sm);
-  background:
-    radial-gradient(circle at 20% 30%, rgba(242, 217, 168, 0.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 78% 70%, rgba(242, 217, 168, 0.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 65% 22%, rgba(255, 255, 255, 0.7) 0 1.5px, transparent 2.5px),
-    linear-gradient(160deg, var(--blue-100), #dfeaf6);
-}
-
-.iconWrap {
-  width: 84px;
-  height: 84px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--navy-800);
-  color: var(--gold-200);
-  box-shadow: 0 0 0 8px rgba(31, 63, 107, 0.12);
-}
-
 .number {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--navy-700);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  position: absolute;
+  top: 6px;
+  right: 16px;
+  color: transparent;
+  font-family: var(--font-serif);
+  font-size: 84px;
+  font-weight: 900;
+  line-height: 1;
+  -webkit-text-stroke: 1px var(--line-strong);
+}
+
+.icon {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  background: var(--ink-950);
+  color: var(--gold-200);
+  box-shadow: 0 0 0 6px var(--blue-100);
 }
 
 .step h3 {
   margin-bottom: 8px;
-  font-size: 25px;
+  font-size: 24px;
 }
 
 .step p {
@@ -67,9 +156,11 @@
 }
 
 @media (max-width: 900px) {
+  .intro {
+    grid-template-columns: 1fr;
+  }
+
   .steps {
     grid-template-columns: 1fr;
-    max-width: 520px;
-    margin-inline: auto;
   }
 }

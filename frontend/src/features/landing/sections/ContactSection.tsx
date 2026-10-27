@@ -51,11 +51,11 @@ export function ContactSection() {
   })
 
   return (
-    <section className={styles.section} id="contato" aria-labelledby="contato-title">
+    <section className={`paper ${styles.section}`} id="contato" aria-labelledby="contato-title">
       <div className={styles.inner}>
         <SectionHeader
           id="contato-title"
-          eyebrow="Fale com a gente"
+          eyebrow="fale com a gente"
           title="Contato"
           description="Dúvidas, sugestões ou ideias? Preencha os campos e continue a conversa pelo WhatsApp."
         />

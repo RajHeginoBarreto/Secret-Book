@@ -1,0 +1,160 @@
+.wrap {
+  --w: 190px;
+  --h: 250px;
+  width: var(--w);
+  height: var(--h);
+  perspective: 900px;
+  animation: float 6s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+
+.sm {
+  --w: 130px;
+  --h: 170px;
+}
+
+.lg {
+  --w: 230px;
+  --h: 300px;
+}
+
+.package {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px 8px 8px 4px;
+  transform: rotate(var(--tilt, 0deg));
+  transform-style: preserve-3d;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.18), transparent 35%),
+    repeating-linear-gradient(35deg, rgba(90, 60, 25, 0.05) 0 2px, transparent 2px 7px),
+    radial-gradient(ellipse at 30% 20%, #d7b183, transparent 70%),
+    var(--kraft);
+  box-shadow:
+    inset -10px 0 14px -10px rgba(70, 45, 15, 0.45),
+    inset 0 -2px 0 rgba(70, 45, 15, 0.2),
+    0 22px 40px -12px rgba(0, 0, 0, 0.55);
+  transition: transform 0.5s var(--ease-spring);
+}
+
+/* Lombada do livro dentro do papel */
+.package::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 10px;
+  border-radius: 4px 0 0 4px;
+  background: linear-gradient(90deg, rgba(70, 45, 15, 0.3), transparent);
+}
+
+.wrap:hover .package {
+  transform: rotate(0deg) translateY(-8px) rotateY(-14deg) rotateX(6deg);
+}
+
+.twineV,
+.twineH {
+  position: absolute;
+  background: repeating-linear-gradient(45deg, var(--twine) 0 3px, #cdbb95 3px 5px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.twineV {
+  top: 0;
+  bottom: 0;
+  left: 58%;
+  width: 4px;
+}
+
+.twineH {
+  left: 0;
+  right: 0;
+  top: 44%;
+  height: 4px;
+}
+
+.bow {
+  position: absolute;
+  top: calc(44% - 12px);
+  left: calc(58% - 22px);
+  width: 48px;
+  height: 28px;
+}
+
+.bow span {
+  position: absolute;
+  top: 2px;
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--twine);
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.bow span:first-child {
+  left: 0;
+  transform: rotate(-30deg);
+}
+
+.bow span:last-child {
+  right: 0;
+  transform: scaleX(-1) rotate(-30deg);
+}
+
+.heart {
+  position: absolute;
+  top: 12%;
+  left: 18%;
+  color: var(--ink-950);
+  font-size: calc(var(--w) * 0.11);
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.tag {
+  position: absolute;
+  top: calc(44% + 10px);
+  left: calc(58% + 4px);
+  display: grid;
+  gap: 1px;
+  min-width: calc(var(--w) * 0.46);
+  padding: 14px 10px 8px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #f7efdf, #eadcc2);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  color: var(--ink-950);
+  font-family: var(--font-hand);
+  font-size: calc(var(--w) * 0.085);
+  line-height: 1.05;
+  text-align: center;
+  transform-origin: 50% 0;
+  transform: rotate(-12deg);
+  transition: transform 0.6s var(--ease-spring);
+  clip-path: polygon(14% 0, 86% 0, 100% 14%, 100% 100%, 0 100%, 0 14%);
+}
+
+/* Furinho da etiqueta */
+.tag::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: var(--kraft-dark);
+}
+
+.wrap:hover .tag {
+  transform: rotate(6deg);
+}
+
+@keyframes float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -10px;
+  }
+}

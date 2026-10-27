@@ -39,7 +39,7 @@ class SecurityConfigTest extends IntegrationTest {
 
 	@Test
 	void adminAreaIsForbiddenForReaders() throws Exception {
-		String token = registerReader("leitora-seguranca@example.com");
+		String token = registerReader("leitora-seguranca");
 		mockMvc.perform(get("/api/admin/stats").with(bearer(token)))
 			.andExpect(status().isForbidden())
 			.andExpect(jsonPath("$.title").value("Acesso negado"));

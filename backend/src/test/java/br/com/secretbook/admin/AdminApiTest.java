@@ -28,12 +28,12 @@ class AdminApiTest extends IntegrationTest {
 
 	@BeforeEach
 	void loginAsAdmin() throws Exception {
-		admin = loginAsNewAdmin("admin-painel@example.com");
+		admin = loginAsNewAdmin("admin-painel");
 	}
 
 	@Test
 	void statsSummarizeThePrototype() throws Exception {
-		registerReader("estatistica@example.com");
+		registerReader("estatistica");
 		mockMvc.perform(get("/api/admin/stats").with(bearer(admin)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.totalBooks").value(24))
@@ -149,13 +149,14 @@ class AdminApiTest extends IntegrationTest {
 
 	@Test
 	void managesUsersButNotTheirOwnAccess() throws Exception {
-		String readerToken = registerReader("gerenciada@example.com");
-		AppUser reader = users.findByEmail("gerenciada@example.com").orElseThrow();
-		AppUser self = users.findByEmail("admin-painel@example.com").orElseThrow();
+		String readerToken = registerReader("gerenciada");
+		AppUser reader = users.findByUsername("gerenciada").orElseThrow();
+		AppUser self = users.findByUsername("admin-painel").orElseThrow();
 
 		mockMvc.perform(get("/api/admin/users").with(bearer(admin)).param("q", "GERENCIADA"))
 			.andExpect(jsonPath("$.totalElements").value(1))
-			.andExpect(jsonPath("$.content[0].email").value("gerenciada@example.com"));
+			.andExpect(jsonPath("$.content[0].username").value("gerenciada"))
+			.andExpect(jsonPath("$.content[0].email").doesNotExist());
 
 		mockMvc.perform(patch("/api/admin/users/{id}", reader.getId()).with(bearer(admin))
 				.contentType(MediaType.APPLICATION_JSON).content("{\"enabled\": false}"))
@@ -170,8 +171,8 @@ class AdminApiTest extends IntegrationTest {
 
 	@Test
 	void promotingAReaderGivesAdminAccessImmediately() throws Exception {
-		String readerToken = registerReader("promovida@example.com");
-		AppUser reader = users.findByEmail("promovida@example.com").orElseThrow();
+		String readerToken = registerReader("promovida");
+		AppUser reader = users.findByUsername("promovida").orElseThrow();
 		mockMvc.perform(get("/api/admin/stats").with(bearer(readerToken))).andExpect(status().isForbidden());
 
 		mockMvc.perform(patch("/api/admin/users/{id}", reader.getId()).with(bearer(admin))
@@ -206,17 +207,18 @@ class AdminApiTest extends IntegrationTest {
 
 	@Test
 	void listsFeedbackAndSubscriptions() throws Exception {
-		String reader = registerReader("opina@example.com");
+		String reader = registerReader("opina");
 		mockMvc.perform(put("/api/me/feedback/um-verao-em-paraty").with(bearer(reader))
 			.contentType(MediaType.APPLICATION_JSON).content("{\"useful\": true, \"comment\": \"Amei\"}"));
 		mockMvc.perform(post("/api/me/subscription").with(bearer(reader)).contentType(MediaType.APPLICATION_JSON)
 			.content("{\"planSlug\": \"leitor-casual\"}"));
 
 		mockMvc.perform(get("/api/admin/feedback").with(bearer(admin)))
-			.andExpect(jsonPath("$.content[0].userEmail").value("opina@example.com"))
+			.andExpect(jsonPath("$.content[0].username").value("opina"))
 			.andExpect(jsonPath("$.content[0].bookTitle").value("Um Verão em Paraty"))
 			.andExpect(jsonPath("$.content[0].comment").value("Amei"));
 		mockMvc.perform(get("/api/admin/subscriptions").with(bearer(admin)))
+			.andExpect(jsonPath("$.content[0].username").value("opina"))
 			.andExpect(jsonPath("$.content[0].planName").value("Leitor casual"))
 			.andExpect(jsonPath("$.content[0].status").value("ACTIVE"));
 		mockMvc.perform(get("/api/admin/stats").with(bearer(admin)))

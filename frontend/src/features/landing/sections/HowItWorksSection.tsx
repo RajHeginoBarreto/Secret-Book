@@ -1,52 +1,70 @@
-import { ListChecks, PackageOpen, WandSparkles, type LucideIcon } from 'lucide-react'
+import { Check, Gift, PackageOpen, Sparkles } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { SectionHeader } from '../../../components/ui/SectionHeader'
+import { useReveal } from '../../../hooks/useReveal'
 import styles from './HowItWorksSection.module.css'
 
-interface Step {
-  icon: LucideIcon
-  title: string
-  text: string
-}
-
-const STEPS: Step[] = [
+const STEPS: { icon: LucideIcon; title: string; text: string }[] = [
   {
-    icon: ListChecks,
-    title: 'Você responde',
-    text: 'Um quiz curto revela seus gêneros favoritos, o clima de história que te prende e o que você prefere evitar.',
+    icon: Sparkles,
+    title: 'Você escolhe o tema',
+    text: 'Responda ao quiz literário ou nos conte o clima que quer ler: romance, mistério, fantasia, terror…',
   },
   {
-    icon: WandSparkles,
-    title: 'Nós selecionamos',
-    text: 'Suas respostas viram um perfil literário. A seleção compara esse perfil com as características de cada obra.',
+    icon: Gift,
+    title: 'A gente monta o livro',
+    text: 'Selecionamos uma obra que combina com seu perfil e embrulhamos à mão em kraft, barbante e etiqueta de pistas.',
   },
   {
     icon: PackageOpen,
-    title: 'Você descobre',
-    text: 'O livro chega embrulhado com um cartão de pistas, marca-páginas e adesivos. A história se revela aos poucos.',
+    title: 'É uma surpresa!',
+    text: 'O livro chega sem o título à vista. Só as pistas. A história você descobre quando desamarrar o laço.',
   },
 ]
 
 export function HowItWorksSection() {
+  const ref = useReveal<HTMLElement>()
   return (
-    <section className={styles.section} id="como-funciona" aria-labelledby="como-funciona-title">
-      <div className="container">
-        <SectionHeader
-          id="como-funciona-title"
-          eyebrow="Como funciona"
-          title="Uma nova forma de encontrar sua próxima leitura"
-          description="Três passos para transformar a escolha de um livro em uma pequena aventura."
-        />
+    <section ref={ref} className={`paper ${styles.section}`} id="como-funciona" aria-labelledby="como-funciona-title">
+      <div className={`container ${styles.inner}`}>
+        <div className={styles.intro}>
+          <SectionHeader
+            id="como-funciona-title"
+            align="left"
+            eyebrow="como funciona"
+            title="Uma nova forma de encontrar sua próxima leitura"
+            description="Inspirado no nosso estande de livros surpresa: três passos simples, uma leitura inesquecível."
+          />
+
+          {/* Cartaz de lona, como o pendurado na mesa do estande */}
+          <div className={styles.poster} data-reveal="">
+            <p className={styles.posterTitle}>Secret Book</p>
+            <p className={styles.posterSub}>Livros surpresa!</p>
+            <ul>
+              {STEPS.map((step) => (
+                <li key={step.title}>
+                  <Check size={18} aria-hidden="true" strokeWidth={3} />
+                  {step.title}
+                </li>
+              ))}
+            </ul>
+            <p className={styles.posterFoot}>porque todo livro é uma nova aventura ♥</p>
+          </div>
+        </div>
+
         <ol className={styles.steps}>
-          {STEPS.map(({ icon: Icon, title, text }, index) => (
-            <li key={title} className={styles.step}>
-              <div className={styles.illustration} aria-hidden="true">
-                <span className={styles.iconWrap}>
-                  <Icon size={34} strokeWidth={1.6} />
+          {STEPS.map((step, index) => (
+            <li key={step.title} data-reveal="" data-reveal-delay={index * 140}>
+              <div className={styles.step}>
+                <span className={styles.number} aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
                 </span>
+                <span className={styles.icon} aria-hidden="true">
+                  <step.icon size={24} />
+                </span>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
               </div>
-              <span className={styles.number}>{String(index + 1).padStart(2, '0')}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
             </li>
           ))}
         </ol>

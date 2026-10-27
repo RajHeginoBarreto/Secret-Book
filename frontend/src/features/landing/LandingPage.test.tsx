@@ -6,23 +6,25 @@ import { renderRoute } from '../../test/renderRoute'
 describe('Landing page', () => {
   it('exibe o hero e todas as seções principais', () => {
     renderRoute('/')
-    expect(screen.getByRole('heading', { level: 1, name: /livros que combinam/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: /livros surpresa que combinam/i })).toBeInTheDocument()
 
     const expectedSections = [
       /uma nova forma de encontrar/i,
-      /sem revelar o título/i,
-      /o que chega na sua porta/i,
-      /que tipo de pacote combina/i,
-      /uma surpresa que tem a sua cara/i,
-      /escolha seu ritmo de leitura/i,
-      /como seria receber/i,
-      /perguntas antes de abrir/i,
+      /feito à mão, do embrulho à etiqueta/i,
       /pronto\(a\) para o seu encontro/i,
+      /escolha seu ritmo de leitura/i,
+      /um perfil que guarda a sua história/i,
+      /perguntas antes de abrir/i,
       /^contato$/i,
     ]
     for (const name of expectedSections) {
       expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument()
     }
+  })
+
+  it('não tem mais a seção de depoimentos', () => {
+    renderRoute('/')
+    expect(screen.queryByText(/depoimentos fictícios/i)).not.toBeInTheDocument()
   })
 
   it('cada plano leva ao fluxo de simulação correspondente', () => {
@@ -36,26 +38,29 @@ describe('Landing page', () => {
     expect(screen.getByText(/valores e benefícios fictícios/i)).toBeInTheDocument()
   })
 
-  it('identifica os depoimentos como fictícios', () => {
+  it('vira o cartão de pistas dos produtos', async () => {
+    const { user } = renderRoute('/')
+    const card = screen.getByRole('button', { name: /virar o cartão de pistas para ver o verso/i })
+    expect(card).toHaveAttribute('aria-pressed', 'false')
+    await user.click(card)
+    expect(screen.getByRole('button', { name: /virar o cartão de pistas para a frente/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
+  it('troca a prévia do quiz ao escolher um tema', async () => {
+    const { user } = renderRoute('/')
+    const group = screen.getByRole('group', { name: /escolha um tema/i })
+    await user.click(within(group).getByRole('button', { name: /fantasia/i }))
+    expect(within(group).getByRole('button', { name: /fantasia/i })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText(/mundos com regras próprias/i)).toBeInTheDocument()
+  })
+
+  it('explica que a conta pede só nome e senha', () => {
     renderRoute('/')
-    expect(screen.getByText('Depoimentos fictícios')).toBeInTheDocument()
-  })
-
-  it('abre a caixa surpresa e mostra o conteúdo', async () => {
-    const { user } = renderRoute('/')
-    const button = screen.getByRole('button', { name: 'Abrir a caixa' })
-    expect(button).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.getByText('Cartão de pistas')).not.toBeVisible()
-    await user.click(button)
-    expect(screen.getByRole('button', { name: 'Fechar a caixa' })).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText('Cartão de pistas')).toBeVisible()
-  })
-
-  it('revela as pistas de um pacote de exemplo', async () => {
-    const { user } = renderRoute('/')
-    const [firstPackage] = screen.getAllByRole('button', { name: /mostrar pistas deste pacote/i })
-    await user.click(firstPackage!)
-    expect(screen.getByRole('button', { name: /pistas: mistério/i })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText(/só nome e senha/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /criar meu perfil/i })).toHaveAttribute('href', '/cadastro')
   })
 })
 

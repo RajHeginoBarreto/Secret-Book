@@ -44,7 +44,7 @@ export function AdminSubscriptionsPage() {
                     <tr key={item.id}>
                       <td>
                         {item.userName}
-                        <div className={styles.muted}>{item.userEmail}</div>
+                        <div className={styles.muted}>{item.username}</div>
                       </td>
                       <td>{item.planName}</td>
                       <td>

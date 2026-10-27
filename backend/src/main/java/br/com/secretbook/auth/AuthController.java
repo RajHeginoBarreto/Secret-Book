@@ -35,15 +35,15 @@ public class AuthController {
 
 	@PostMapping("/register")
 	@ResponseStatus(HttpStatus.CREATED)
-	@Operation(summary = "Cria uma conta de leitor e já abre uma sessão")
+	@Operation(summary = "Cria uma conta de leitor (nome de usuário e senha, sem e-mail) e já abre uma sessão")
 	public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
-		return auth.register(request.name(), request.email(), request.password());
+		return auth.register(request.username(), request.password());
 	}
 
 	@PostMapping("/login")
-	@Operation(summary = "Abre uma sessão e devolve o token de acesso (Bearer)")
+	@Operation(summary = "Abre uma sessão com nome de usuário (ou e-mail, em contas antigas) e devolve o token (Bearer)")
 	public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-		return auth.login(request.email(), request.password());
+		return auth.login(request.username(), request.password());
 	}
 
 	@PostMapping("/logout")

@@ -6,7 +6,7 @@
   min-height: 46px;
   padding: 11px 22px;
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   font-family: var(--font-sans);
   font-size: 15px;
   font-weight: 600;
@@ -21,6 +21,10 @@
     border-color 0.2s var(--ease),
     transform 0.2s var(--ease),
     box-shadow 0.2s var(--ease);
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-2px);
 }
 
 .button:active:not(:disabled) {
@@ -49,12 +53,14 @@
 }
 
 .primary {
-  background: var(--navy-800);
-  color: var(--white);
+  background: var(--navy-900);
+  color: var(--text-on-dark);
+  box-shadow: 0 6px 18px rgba(11, 10, 9, 0.18);
 }
 
 .primary:hover:not(:disabled) {
-  background: var(--navy-900);
+  background: var(--ink-950);
+  box-shadow: 0 10px 26px rgba(11, 10, 9, 0.28);
 }
 
 .outline {
@@ -70,23 +76,25 @@
 
 .outline-light {
   background: transparent;
-  border-color: rgba(255, 255, 255, 0.8);
-  color: var(--white);
+  border-color: rgba(239, 230, 214, 0.55);
+  color: var(--text-on-dark);
 }
 
 .outline-light:hover:not(:disabled) {
-  background: var(--white);
-  color: var(--navy-800);
+  background: var(--text-on-dark);
+  color: var(--ink-950);
 }
 
 .light {
-  background: var(--surface);
-  color: var(--navy-800);
+  background: var(--paper);
+  color: var(--ink-950);
+  box-shadow: 0 0 0 1px rgba(208, 170, 85, 0.4), 0 10px 30px rgba(208, 170, 85, 0.15);
 }
 
 .light:hover:not(:disabled) {
-  background: var(--white);
-  color: var(--navy-900);
+  background: var(--gold-200);
+  color: var(--ink-950);
+  box-shadow: 0 0 0 1px rgba(208, 170, 85, 0.7), 0 14px 40px rgba(208, 170, 85, 0.3);
 }
 
 .ghost {

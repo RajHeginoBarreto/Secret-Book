@@ -28,7 +28,7 @@ export function SiteHeader() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <Logo />
+        <Logo tone="light" />
 
         <button
           type="button"
@@ -73,7 +73,7 @@ export function SiteHeader() {
               </li>
             )}
             <li className={styles.ctaItem}>
-              <Button to="/quiz" onClick={() => setOpenForKey(null)}>
+              <Button to="/quiz" variant="light" onClick={() => setOpenForKey(null)}>
                 Fazer o quiz
               </Button>
             </li>

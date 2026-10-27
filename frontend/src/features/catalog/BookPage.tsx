@@ -1,4 +1,5 @@
 import { ArrowLeft } from 'lucide-react'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { ErrorState, LoadingState } from '../../components/ui/StatusMessage'
 import { useApi } from '../../hooks/useApi'
@@ -14,11 +15,13 @@ import {
 } from './catalogTypes'
 import styles from './BookPage.module.css'
 import { LibraryActions } from '../account/LibraryActions'
+import { BookComments } from './BookComments'
 
 export function BookPage() {
   const { slug = '' } = useParams()
   const book = useApi<BookDetail>(`/api/books/${encodeURIComponent(slug)}`)
   usePageTitle(book.data?.title ?? 'Livro')
+  const [commentsVersion, setCommentsVersion] = useState(0)
 
   if (book.error?.status === 404) return <NotFoundPage />
 
@@ -35,7 +38,7 @@ export function BookPage() {
         <article className={styles.layout}>
           <div className={styles.coverColumn}>
             <BookCover book={book.data} size="lg" />
-            <LibraryActions bookSlug={book.data.slug} />
+            <LibraryActions bookSlug={book.data.slug} onReviewChange={() => setCommentsVersion((v) => v + 1)} />
           </div>
 
           <div className={styles.info}>
@@ -100,6 +103,8 @@ export function BookPage() {
             ) : (
               <p className={styles.muted}>Nenhum tema sensível sinalizado.</p>
             )}
+
+            <BookComments key={commentsVersion} bookSlug={book.data.slug} />
 
             <p className={styles.disclaimer}>Livro fictício do catálogo demonstrativo.</p>
           </div>

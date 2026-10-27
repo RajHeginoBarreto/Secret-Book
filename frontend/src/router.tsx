@@ -6,6 +6,7 @@ import { FeedbackPage } from './features/account/FeedbackPage'
 import { HistoryPage } from './features/account/HistoryPage'
 import { LibraryPage } from './features/account/LibraryPage'
 import { ProfilePage } from './features/account/ProfilePage'
+import { ReaderProfilePage } from './features/account/ReaderProfilePage'
 import { AdminAuthorsPage } from './features/admin/AdminAuthorsPage'
 import { AdminBookFormPage } from './features/admin/AdminBookFormPage'
 import { AdminBooksPage } from './features/admin/AdminBooksPage'
@@ -26,6 +27,7 @@ import { BookPage } from './features/catalog/BookPage'
 import { CatalogPage } from './features/catalog/CatalogPage'
 import { LandingPage } from './features/landing/LandingPage'
 import { NotFoundPage } from './features/misc/NotFoundPage'
+import { PrivacyPage } from './features/misc/PrivacyPage'
 import { CheckoutDemoPage } from './features/plans/CheckoutDemoPage'
 import { QuizPage } from './features/quiz/QuizPage'
 import { QuizResultPage } from './features/quiz/QuizResultPage'
@@ -47,6 +49,7 @@ export const routes: RouteObject[] = [
       { path: 'cadastro', element: <RegisterPage /> },
       { path: 'esqueci-senha', element: <ForgotPasswordPage /> },
       { path: 'redefinir-senha', element: <ResetPasswordPage /> },
+      { path: 'privacidade', element: <PrivacyPage /> },
       {
         path: 'minha-conta',
         element: (
@@ -56,6 +59,7 @@ export const routes: RouteObject[] = [
         ),
         children: [
           { index: true, element: <AccountOverviewPage /> },
+          { path: 'leitor', element: <ReaderProfilePage /> },
           { path: 'biblioteca', element: <LibraryPage /> },
           { path: 'historico', element: <HistoryPage /> },
           { path: 'avaliacoes', element: <FeedbackPage /> },

@@ -11,8 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 /**
- * Cria a primeira conta de administrador a partir de ADMIN_EMAIL e ADMIN_PASSWORD, se ela ainda não existir.
- * Sem essas variáveis, nada acontece. Senhas nunca ficam no código nem nas migrações.
+ * Cria a primeira conta de administrador a partir de ADMIN_USERNAME (padrão "admin") e ADMIN_PASSWORD, se ela ainda
+ * não existir. ADMIN_EMAIL é opcional (permite entrar também pelo e-mail e recuperar a senha). Sem ADMIN_PASSWORD,
+ * nada acontece. Senhas nunca ficam no código nem nas migrações.
  */
 @Component
 public class AdminBootstrap implements ApplicationRunner {
@@ -23,6 +24,8 @@ public class AdminBootstrap implements ApplicationRunner {
 
 	private final PasswordEncoder passwordEncoder;
 
+	private final String username;
+
 	private final String email;
 
 	private final String password;
@@ -30,10 +33,12 @@ public class AdminBootstrap implements ApplicationRunner {
 	private final String name;
 
 	public AdminBootstrap(AppUserRepository users, PasswordEncoder passwordEncoder,
+			@Value("${secretbook.admin.username:admin}") String username,
 			@Value("${secretbook.admin.email:}") String email, @Value("${secretbook.admin.password:}") String password,
 			@Value("${secretbook.admin.name:Administrador}") String name) {
 		this.users = users;
 		this.passwordEncoder = passwordEncoder;
+		this.username = Usernames.normalize(username);
 		this.email = email;
 		this.password = password;
 		this.name = name;
@@ -42,19 +47,24 @@ public class AdminBootstrap implements ApplicationRunner {
 	@Override
 	@Transactional
 	public void run(ApplicationArguments args) {
-		if (!StringUtils.hasText(email) || !StringUtils.hasText(password)) {
+		if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
 			return;
 		}
-		if (users.existsByEmail(email)) {
-			log.info("Conta de administrador inicial ({}) já existe; nada a fazer.", email);
+		if (users.existsByUsername(username) || (StringUtils.hasText(email) && users.existsByEmail(email.trim()))) {
+			log.info("Conta de administrador inicial ({}) já existe; nada a fazer.", username);
+			return;
+		}
+		if (!username.matches(Usernames.REGEX)) {
+			log.warn("ADMIN_USERNAME {}; administrador inicial não foi criado.", Usernames.MESSAGE);
 			return;
 		}
 		if (password.length() < 8) {
 			log.warn("ADMIN_PASSWORD precisa ter pelo menos 8 caracteres; administrador inicial não foi criado.");
 			return;
 		}
-		users.save(new AppUser(name, email, passwordEncoder.encode(password), Role.ADMIN));
-		log.info("Conta de administrador inicial criada: {}", email);
+		String displayName = StringUtils.hasText(name) ? name.trim() : username;
+		users.save(new AppUser(displayName, username, email, passwordEncoder.encode(password), Role.ADMIN));
+		log.info("Conta de administrador inicial criada: {}", username);
 	}
 
 }

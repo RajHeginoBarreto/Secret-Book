@@ -39,26 +39,33 @@ public abstract class IntegrationTest {
 	@Autowired
 	protected PasswordEncoder passwordEncoder;
 
-	/** Cria uma conta de leitor pela API e devolve o token da sessão aberta. */
-	protected String registerReader(String email) throws Exception {
+	/** Cria uma conta de leitor pela API (só nome de usuário e senha) e devolve o token da sessão aberta. */
+	protected String registerReader(String username) throws Exception {
 		String body = mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
 			.content("""
-					{"name": "Leitora Teste", "email": "%s", "password": "%s"}""".formatted(email, PASSWORD)))
+					{"username": "%s", "password": "%s", "acceptPrivacy": true}""".formatted(username, PASSWORD)))
 			.andExpect(status().isCreated())
 			.andReturn().getResponse().getContentAsString();
 		return JsonPath.read(body, "$.token");
 	}
 
 	/** Cria um administrador direto no banco e faz login pela API. */
-	protected String loginAsNewAdmin(String email) throws Exception {
-		users.save(new AppUser("Admin Teste", email, passwordEncoder.encode(PASSWORD), Role.ADMIN));
-		return login(email, PASSWORD);
+	protected String loginAsNewAdmin(String username) throws Exception {
+		users.save(new AppUser("Admin Teste", username, null, passwordEncoder.encode(PASSWORD), Role.ADMIN));
+		return login(username, PASSWORD);
 	}
 
-	protected String login(String email, String password) throws Exception {
+	/** Cria direto no banco uma conta antiga, com e-mail (anterior ao login por nome de usuário). */
+	protected AppUser createLegacyReader(String username, String email) {
+		return users.saveAndFlush(new AppUser("Leitora Antiga", username, email, passwordEncoder.encode(PASSWORD),
+				Role.READER));
+	}
+
+	/** Faz login pelo nome de usuário (ou pelo e-mail, em contas antigas) e devolve o token. */
+	protected String login(String username, String password) throws Exception {
 		String body = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
 			.content("""
-					{"email": "%s", "password": "%s"}""".formatted(email, password)))
+					{"username": "%s", "password": "%s"}""".formatted(username, password)))
 			.andExpect(status().isOk())
 			.andReturn().getResponse().getContentAsString();
 		return JsonPath.read(body, "$.token");

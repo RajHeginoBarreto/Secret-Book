@@ -45,7 +45,7 @@ export function AdminFeedbackPage() {
                     <tr key={item.id}>
                       <td>
                         {item.userName}
-                        <div className={styles.muted}>{item.userEmail}</div>
+                        <div className={styles.muted}>{item.username}</div>
                       </td>
                       <td>
                         <Link to={`/livros/${item.bookSlug}`}>{item.bookTitle}</Link>

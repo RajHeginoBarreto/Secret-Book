@@ -14,17 +14,19 @@
 
 .eyebrow {
   display: inline-block;
-  margin-bottom: 12px;
-  color: var(--navy-800);
-  font-size: 13px;
+  margin-bottom: 6px;
+  color: var(--kraft-dark);
+  font-family: var(--font-hand);
+  font-size: 26px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  line-height: 1.1;
 }
 
 .title {
   margin-bottom: 14px;
-  font-size: clamp(32px, 4.2vw, 50px);
+  font-size: clamp(34px, 4.6vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .description {
@@ -42,9 +44,9 @@
 }
 
 .dark .title {
-  color: var(--white);
+  color: var(--text-on-dark);
 }
 
 .dark .description {
-  color: var(--text-on-dark);
+  color: var(--text-on-dark-muted);
 }

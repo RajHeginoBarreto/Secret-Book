@@ -5,21 +5,22 @@ import styles from './Account.module.css'
 
 const TABS = [
   { to: '/minha-conta', label: 'Visão geral', end: true },
+  { to: '/minha-conta/leitor', label: 'Perfil de leitor' },
   { to: '/minha-conta/biblioteca', label: 'Biblioteca' },
   { to: '/minha-conta/historico', label: 'Histórico do quiz' },
   { to: '/minha-conta/avaliacoes', label: 'Avaliações' },
-  { to: '/minha-conta/perfil', label: 'Perfil e senha' },
+  { to: '/minha-conta/perfil', label: 'Conta e privacidade' },
 ]
 
 export function AccountLayout() {
   const { user } = useAuth()
-  const firstName = user?.name.split(' ')[0] ?? ''
+  const firstName = user?.username ?? ''
   return (
     <>
       <PageHeader
         eyebrow="Minha conta"
         title={`Olá, ${firstName}`}
-        description="Sua biblioteca, seus resultados do quiz e sua assinatura demonstrativa."
+        description="Seu perfil de leitor, sua estante, seus resultados do quiz e sua assinatura demonstrativa."
       />
       <div className={styles.page}>
         <nav aria-label="Seções da conta">

@@ -7,10 +7,11 @@ import { SelectField } from '../../components/ui/Field'
 import { useApi } from '../../hooks/useApi'
 import { useAuth } from '../auth/AuthContext'
 import { READING_STATUS_LABELS, type LibraryEntry, type ReadingStatus } from './accountTypes'
+import { ReviewEditor } from './ReviewEditor'
 import styles from './Account.module.css'
 
 /** Status de leitura e favorito de um livro (na página do livro). Visitantes veem um convite para entrar. */
-export function LibraryActions({ bookSlug }: { bookSlug: string }) {
+export function LibraryActions({ bookSlug, onReviewChange }: { bookSlug: string; onReviewChange?: () => void }) {
   const { status } = useAuth()
   const location = useLocation()
 
@@ -22,10 +23,10 @@ export function LibraryActions({ bookSlug }: { bookSlug: string }) {
       </p>
     )
   }
-  return <LibraryControls bookSlug={bookSlug} />
+  return <LibraryControls bookSlug={bookSlug} onReviewChange={onReviewChange} />
 }
 
-function LibraryControls({ bookSlug }: { bookSlug: string }) {
+function LibraryControls({ bookSlug, onReviewChange }: { bookSlug: string; onReviewChange?: () => void }) {
   const entry = useApi<LibraryEntry>(`/api/me/library/${encodeURIComponent(bookSlug)}`)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -75,6 +76,15 @@ function LibraryControls({ bookSlug }: { bookSlug: string }) {
         <Heart size={16} aria-hidden="true" fill={favorite ? 'currentColor' : 'none'} />
         {favorite ? 'Favorito' : 'Favoritar'}
       </Button>
+      {status === 'READ' && (
+        <ReviewEditor
+          entry={entry.data}
+          onSaved={(saved) => {
+            entry.setData(saved)
+            onReviewChange?.()
+          }}
+        />
+      )}
       {error && (
         <p className={styles.error} role="alert">
           {error}

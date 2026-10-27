@@ -84,7 +84,8 @@ export interface AdminGenre {
 export interface AdminUser {
   id: number
   name: string
-  email: string
+  username: string
+  email: string | null
   role: Role
   enabled: boolean
   createdAt: string
@@ -93,7 +94,8 @@ export interface AdminUser {
 export interface AdminFeedback {
   id: number
   userName: string
-  userEmail: string
+  username: string
+  userEmail: string | null
   bookSlug: string
   bookTitle: string
   useful: boolean
@@ -105,7 +107,8 @@ export interface AdminFeedback {
 export interface AdminSubscription {
   id: number
   userName: string
-  userEmail: string
+  username: string
+  userEmail: string | null
   planName: string
   status: 'ACTIVE' | 'CANCELED'
   startedAt: string

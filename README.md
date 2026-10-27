@@ -33,8 +33,7 @@ quiz, recebe um perfil literário e descobre livros "às cegas", guiado por pist
       celular (largura ~375 px) e mensagens de erro.
 - [ ] **Escrever a seção "Como funciona a recomendação"** neste README (resumo do que está documentado em
       `backend/src/main/java/br/com/secretbook/quiz/engine/RecommendationEngine.java`).
-- [ ] **Logo pesado:** `frontend/src/assets/logo.svg` tem ~1,5 MB (PNG embutido em SVG). Trocar por uma versão
-      vetorial ou otimizada.
+- [x] **Logo pesado:** trocado por um SVG desenhado no próprio componente `Logo.tsx` (o arquivo de 1,5 MB foi removido).
 - [ ] **E-mail de verdade** para a recuperação de senha (hoje o link sai só no log do backend; ver
       `LoggingPasswordResetNotifier`).
 - [ ] **Limite de tentativas de login** (proteção contra força bruta), ainda não implementado.
@@ -70,14 +69,16 @@ As migrações do Flyway criam as tabelas e os dados demonstrativos (24 livros f
 perguntas do quiz e 3 planos) na primeira subida.
 
 **Administrador inicial.** Nenhuma senha fica no código. Para criar o primeiro admin, defina as variáveis abaixo
-antes de subir o backend; se a conta ainda não existir, ela é criada com o papel ADMIN:
+antes de subir o backend; se a conta ainda não existir, ela é criada com o papel ADMIN. O login é pelo nome de
+usuário (`ADMIN_USERNAME`, padrão `admin`); `ADMIN_EMAIL` é opcional e permite também entrar pelo e-mail e
+recuperar a senha:
 
 ```bash
 # PowerShell
-$env:ADMIN_EMAIL='seu-email@exemplo.com'; $env:ADMIN_PASSWORD='SuaSenhaForte123'; .\mvnw.cmd spring-boot:run
+$env:ADMIN_USERNAME='admin'; $env:ADMIN_PASSWORD='SuaSenhaForte123'; .\mvnw.cmd spring-boot:run
 ```
 
-Depois é só entrar em `/entrar` e abrir `/admin`. Pelo próprio painel dá para promover outros usuários.
+Depois é só entrar em `/entrar` com o nome de usuário e abrir `/admin`. Pelo próprio painel dá para promover outros usuários.
 
 | Endereço | O que é |
 |---|---|
@@ -120,7 +121,8 @@ Todas são opcionais em desenvolvimento.
 | `JWT_SECRET` | chave de desenvolvimento | Chave dos tokens de login (mínimo 32 caracteres). **Troque fora do ambiente local.** |
 | `AUTH_TOKEN_TTL` | `12h` | Duração de uma sessão |
 | `FRONTEND_URL` | `http://localhost:5173` | Usado para montar o link de redefinição de senha |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` | vazio | Administrador inicial (ver acima) |
+| `ADMIN_USERNAME` | `admin` | Nome de usuário do administrador inicial (ver acima) |
+| `ADMIN_PASSWORD` / `ADMIN_EMAIL` / `ADMIN_NAME` | vazio / vazio / `Administrador` | Senha (sem ela, nenhum admin é criado), e-mail opcional e nome de exibição do administrador inicial |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:5173` | Origens do frontend autorizadas, separadas por vírgula |
 | `PORT` | `8080` | Porta HTTP da API |
 
@@ -134,12 +136,13 @@ A documentação completa está no Swagger. Rotas públicas, de leitor logado e 
 
 | Área | Rotas | Acesso |
 |---|---|---|
-| Catálogo | `GET /api/genres`, `/api/books?genre=&q=&page=`, `/api/books/{slug}`, `/api/authors/{slug}` | Público |
+| Catálogo | `GET /api/genres`, `/api/books?genre=&q=&page=`, `/api/books/{slug}`, `/api/books/{slug}/comments`, `/api/authors/{slug}` | Público |
 | Quiz | `GET /api/quiz`, `POST /api/quiz/attempts`, `GET /api/quiz/attempts/{id}` | Público (tentativas de uma conta só abrem para o dono ou admin) |
 | Planos | `GET /api/plans` | Público |
-| Autenticação | `POST /api/auth/register`, `/login`, `/password/forgot`, `/password/reset` | Público |
+| Autenticação | `POST /api/auth/register` (nome de usuário + senha + aceite da política de privacidade, sem e-mail), `/login` (nome de usuário; contas antigas também pelo e-mail), `/password/forgot`, `/password/reset` (só contas com e-mail) | Público |
 | Sessão | `GET/PATCH /api/auth/me`, `POST /api/auth/logout`, `POST /api/auth/password/change` | Logado |
-| Minha conta | `/api/me/library`, `/api/me/feedback`, `/api/me/quiz-attempts`, `/api/me/subscription` | Logado |
+| Minha conta | `/api/me/library`, `PUT/DELETE /api/me/library/{slug}/review` (comentário de livro lido), `/api/me/reader-profile`, `/api/me/feedback`, `/api/me/quiz-attempts`, `/api/me/subscription` | Logado |
+| Dados pessoais (LGPD) | `GET /api/me/export` (tudo o que guardamos, em JSON), `DELETE /api/me` (exclui a conta; pede a senha) | Logado |
 | Painel | `/api/admin/**` (estatísticas, livros, autores, gêneros, usuários, avaliações, assinaturas, pesos) | Admin |
 
 ## Backend: convenções
@@ -147,7 +150,7 @@ A documentação completa está no Swagger. Rotas públicas, de leitor logado e 
 - **Organização por funcionalidade**: `catalog`, `quiz` (com o motor em `quiz/engine`, Java puro e testado sem
   banco), `auth`, `account`, `admin`, `common`, `config`.
 - **Migrações**: o esquema é criado só pelo Flyway, em `backend/src/main/resources/db/migration`
-  (`V1__catalog`, `V2__quiz`, `V3__auth`, `V4__account`). O Hibernate apenas valida (`ddl-auto=validate`).
+  (`V1__catalog`, `V2__quiz`, `V3__auth`, `V4__account`, `V5__reader_profile`). O Hibernate apenas valida (`ddl-auto=validate`).
 - **Erros**: todas as respostas de erro seguem o padrão [Problem Details (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457),
   com `Content-Type: application/problem+json` e textos em português, inclusive 401 e 403. Erros de validação
   trazem a lista `errors` (`[{ "field": "title", "message": "é obrigatório" }]`). Use `ResourceNotFoundException`
@@ -211,7 +214,8 @@ frontend/src/
 
 ## Limitações conhecidas
 
-- **Recuperação de senha sem e-mail:** o link aparece no log do backend (protótipo).
+- **Recuperação de senha sem e-mail:** o link aparece no log do backend (protótipo). Contas novas não têm e-mail
+  (minimização de dados), então só contas antigas e o admin com `ADMIN_EMAIL` conseguem recuperar a senha.
 - **Token no `localStorage`:** simples para o protótipo, mas vulnerável se houver XSS; a sessão pode ser revogada no
   servidor a qualquer momento.
 - **Sem limite de tentativas de login.**

@@ -22,7 +22,11 @@ public class AppUser {
 	@Column(nullable = false)
 	private String name;
 
+	/** Nome de usuário usado no login (único, sem diferenciar maiúsculas). */
 	@Column(nullable = false)
+	private String username;
+
+	/** Opcional: contas de leitor não pedem e-mail (minimização de dados). */
 	private String email;
 
 	@Column(nullable = false)
@@ -35,6 +39,9 @@ public class AppUser {
 	@Column(nullable = false)
 	private boolean enabled = true;
 
+	/** Quando a pessoa aceitou a política de privacidade (nulo em contas antigas). */
+	private Instant privacyAcceptedAt;
+
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
 	private Instant createdAt;
@@ -46,15 +53,17 @@ public class AppUser {
 	protected AppUser() {
 	}
 
-	public AppUser(String name, String email, String passwordHash, Role role) {
+	/** {@code email} pode ser nulo ou vazio (gravado como nulo). */
+	public AppUser(String name, String username, String email, String passwordHash, Role role) {
 		this.name = name;
+		this.username = Usernames.normalize(username);
 		this.email = normalizeEmail(email);
 		this.passwordHash = passwordHash;
 		this.role = role;
 	}
 
 	public static String normalizeEmail(String email) {
-		return email.trim().toLowerCase(Locale.ROOT);
+		return email == null || email.isBlank() ? null : email.trim().toLowerCase(Locale.ROOT);
 	}
 
 	public boolean isAdmin() {
@@ -73,8 +82,20 @@ public class AppUser {
 		this.name = name;
 	}
 
+	public String getUsername() {
+		return username;
+	}
+
 	public String getEmail() {
 		return email;
+	}
+
+	public Instant getPrivacyAcceptedAt() {
+		return privacyAcceptedAt;
+	}
+
+	public void setPrivacyAcceptedAt(Instant privacyAcceptedAt) {
+		this.privacyAcceptedAt = privacyAcceptedAt;
 	}
 
 	public String getPasswordHash() {

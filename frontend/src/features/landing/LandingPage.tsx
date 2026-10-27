@@ -1,15 +1,12 @@
 import { usePageTitle } from '../../hooks/usePageTitle'
-import { BenefitsSection } from './sections/BenefitsSection'
-import { CluesSection } from './sections/CluesSection'
 import { ContactSection } from './sections/ContactSection'
-import { DiscoverySection } from './sections/DiscoverySection'
 import { FaqSection } from './sections/FaqSection'
 import { HeroSection } from './sections/HeroSection'
 import { HowItWorksSection } from './sections/HowItWorksSection'
 import { PlansSection } from './sections/PlansSection'
-import { QuizCtaSection } from './sections/QuizCtaSection'
-import { SurpriseBoxSection } from './sections/SurpriseBoxSection'
-import { TestimonialsSection } from './sections/TestimonialsSection'
+import { ProductsSection } from './sections/ProductsSection'
+import { QuizSection } from './sections/QuizSection'
+import { ReaderProfileSection } from './sections/ReaderProfileSection'
 
 export function LandingPage() {
   usePageTitle()
@@ -17,14 +14,11 @@ export function LandingPage() {
     <>
       <HeroSection />
       <HowItWorksSection />
-      <CluesSection />
-      <SurpriseBoxSection />
-      <DiscoverySection />
-      <BenefitsSection />
+      <ProductsSection />
+      <QuizSection />
       <PlansSection />
-      <TestimonialsSection />
+      <ReaderProfileSection />
       <FaqSection />
-      <QuizCtaSection />
       <ContactSection />
     </>
   )

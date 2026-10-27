@@ -1,0 +1,84 @@
+.bunting {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  color: rgba(239, 230, 214, 0.55);
+}
+
+.row {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: clamp(4px, 1vw, 10px);
+  padding: 6px clamp(10px, 3vw, 28px) 0;
+}
+
+.string {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  height: 26px;
+  overflow: visible;
+}
+
+.flag {
+  --size: clamp(40px, 7.4vw, 82px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--size);
+  height: calc(var(--size) * 1.16);
+  margin-top: var(--drop, 0);
+  padding-top: 6px;
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 7px, rgba(60, 40, 20, 0.08) 7px 8px),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.35), transparent 40%),
+    radial-gradient(ellipse at 70% 90%, rgba(150, 110, 60, 0.25), transparent 60%),
+    #e9dcc2;
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 90, 50, 0.2),
+    0 10px 22px rgba(0, 0, 0, 0.5);
+  color: var(--ink-950);
+  font-family: var(--font-serif);
+  font-size: calc(var(--size) * 0.66);
+  font-weight: 900;
+  line-height: 1;
+  transform-origin: 50% -6px;
+  transform: rotate(var(--angle, 0deg));
+  animation: sway 4.8s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Prendedor de roupa segurando a bandeirola */
+.clip {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 7px;
+  height: 16px;
+  margin-left: -3.5px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #1d1a17, #3b3530);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.star {
+  position: absolute;
+  right: 5px;
+  bottom: 4px;
+  font-family: var(--font-sans);
+  font-size: calc(var(--size) * 0.14);
+  font-weight: 400;
+  opacity: 0.55;
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(var(--angle, 0deg));
+  }
+  50% {
+    transform: rotate(calc(var(--angle, 0deg) + 3deg));
+  }
+}

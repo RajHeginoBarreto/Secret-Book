@@ -27,7 +27,7 @@ export function LoginPage() {
     setSubmitting(true)
     setError(null)
     try {
-      await login(String(data.get('email') ?? ''), String(data.get('password') ?? ''))
+      await login(String(data.get('username') ?? '').trim(), String(data.get('password') ?? ''))
       navigate(target, { replace: true })
     } catch (caught) {
       setError(toApiError(caught))
@@ -38,7 +38,7 @@ export function LoginPage() {
   return (
     <AuthCard
       title="Entrar"
-      description="Acesse sua biblioteca, o histórico do quiz e a sua assinatura demonstrativa."
+      description="Só seu nome de usuário e sua senha. Nada de e-mail."
       footer={
         <>
           Ainda não tem conta? <Link to={`/cadastro${params.toString() ? `?${params}` : ''}`}>Criar conta</Link>
@@ -47,11 +47,11 @@ export function LoginPage() {
     >
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {error && <Notice tone="danger">{error.message}</Notice>}
-        <TextField label="E-mail" name="email" type="email" autoComplete="email" required />
+        <TextField label="Nome de usuário" name="username" autoComplete="username" autoCapitalize="none" required />
         <TextField label="Senha" name="password" type="password" autoComplete="current-password" required />
-        <Link to="/esqueci-senha" className={styles.inlineLink}>
-          Esqueci minha senha
-        </Link>
+        <p className={styles.helper}>
+          Esqueceu a senha? Como não guardamos e-mail, fale com a gente pelo WhatsApp para recuperar o acesso.
+        </p>
         <Button type="submit" size="lg" fullWidth loading={submitting}>
           Entrar
         </Button>

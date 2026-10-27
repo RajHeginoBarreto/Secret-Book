@@ -62,11 +62,11 @@ public class SecurityConfig {
 						"/api/auth/password/reset")
 				.permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/genres", "/api/books", "/api/books/*", "/api/authors/*",
-						"/api/quiz", "/api/quiz/attempts/*", "/api/plans")
+						"/api/books/*/comments", "/api/quiz", "/api/quiz/attempts/*", "/api/plans")
 				.permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/quiz/attempts").permitAll()
 				.requestMatchers("/api/admin/**").hasRole("ADMIN")
-				.requestMatchers("/api/auth/**", "/api/me/**").authenticated()
+				.requestMatchers("/api/auth/**", "/api/me", "/api/me/**").authenticated()
 				.anyRequest().denyAll())
 			.build();
 	}

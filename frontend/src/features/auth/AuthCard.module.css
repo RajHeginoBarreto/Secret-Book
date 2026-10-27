@@ -4,26 +4,95 @@
   place-items: start center;
   padding: 56px var(--gutter) 96px;
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(91, 143, 199, 0.22), transparent 55%),
-    var(--bg);
+    repeating-linear-gradient(90deg, transparent 0 6px, rgba(255, 255, 255, 0.045) 6px 7px, transparent 7px 11px),
+    radial-gradient(ellipse at 50% 0%, rgba(208, 170, 85, 0.18), transparent 55%),
+    var(--ink-950);
 }
 
 .card {
   width: 100%;
-  max-width: 440px;
-  padding: 32px;
-  background: var(--white);
-  border: 1px solid var(--line);
+  max-width: 460px;
+  padding: 36px 32px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 31px, rgba(60, 40, 20, 0.04) 31px 32px),
+    var(--surface);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg), var(--glow-gold);
+  animation: card-in 0.6s var(--ease-spring);
 }
 
 .eyebrow {
-  color: var(--gold-700);
-  font-size: 12px;
+  color: var(--kraft-dark);
+  font-family: var(--font-hand);
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) rotate(-1deg);
+  }
+}
+
+.helper {
+  margin-top: -6px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.privacy {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px dashed var(--kraft);
+  border-radius: var(--radius-md);
+  background: rgba(196, 154, 108, 0.08);
+  font-size: 14px;
+}
+
+.privacy ul {
+  display: grid;
+  gap: 4px;
+  padding-left: 18px;
+  color: var(--text-muted);
+}
+
+.privacyTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.privacyTitle svg {
+  color: var(--success);
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.consent input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--ink-950);
+}
+
+.consent a {
+  color: var(--kraft-dark);
+}
+
+.fieldError {
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .title {

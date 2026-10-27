@@ -5,9 +5,9 @@ import styles from './FaqSection.module.css'
 
 export function FaqSection() {
   return (
-    <section className={styles.section} id="faq" aria-labelledby="faq-title">
+    <section className={`tinsel ${styles.section}`} id="faq" aria-labelledby="faq-title">
       <div className={styles.inner}>
-        <SectionHeader id="faq-title" eyebrow="Dúvidas frequentes" title="Perguntas antes de abrir a caixa" />
+        <SectionHeader id="faq-title" tone="dark" eyebrow="dúvidas frequentes" title="Perguntas antes de abrir a caixa" />
         {/* <details>/<summary> são nativos: acessíveis por teclado e leitores de tela sem JavaScript extra. */}
         <div className={styles.list}>
           {FAQ.map((item) => (

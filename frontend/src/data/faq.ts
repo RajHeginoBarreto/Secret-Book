@@ -17,7 +17,7 @@ export const FAQ: FaqItem[] = [
   {
     question: 'E se eu receber um livro que já li?',
     answer:
-      'Ao criar sua conta você poderá registrar o que já leu e o que não quer receber. Essas informações são levadas em conta para evitar repetições.',
+      'No seu perfil de leitor você marca os livros que já leu, os gêneros que ama e os que prefere evitar, e os autores do coração. Livros lidos deixam de ser recomendados para você.',
   },
   {
     question: 'Os planos e preços são reais?',
@@ -28,6 +28,11 @@ export const FAQ: FaqItem[] = [
     question: 'Posso trocar ou cancelar meu plano?',
     answer:
       'No protótipo, a troca e o cancelamento também são simulações. A ideia é demonstrar como esses fluxos funcionariam sem burocracia.',
+  },
+  {
+    question: 'Que dados vocês pedem para criar a conta?',
+    answer:
+      'Só um nome de usuário e uma senha, seguindo o princípio de minimização da LGPD: nada de e-mail, CPF ou telefone. Em Minha conta você pode baixar todos os seus dados ou excluir a conta quando quiser. Seus comentários nos livros aparecem com o seu nome de usuário.',
   },
   {
     question: 'Preciso de conta para fazer o quiz?',

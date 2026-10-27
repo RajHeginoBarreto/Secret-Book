@@ -1,0 +1,64 @@
+.section {
+  display: grid;
+  gap: 14px;
+  margin-top: 36px;
+}
+
+.title {
+  font-size: 24px;
+}
+
+.empty {
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  border-radius: 4px var(--radius-md) var(--radius-md) var(--radius-md);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 27px, rgba(60, 40, 20, 0.05) 27px 28px),
+    var(--surface);
+  border: 1px solid var(--line);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.meta time {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--ink-950);
+  color: var(--gold-200);
+  font-family: var(--font-serif);
+  font-weight: 900;
+}
+
+.item blockquote {
+  font-family: var(--font-hand);
+  font-size: 23px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}

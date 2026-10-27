@@ -6,8 +6,9 @@ export interface NavItem {
 /** Links da navegação principal. */
 export const MAIN_NAV: NavItem[] = [
   { label: 'Como funciona', to: '/#como-funciona' },
-  { label: 'Catálogo', to: '/catalogo' },
+  { label: 'Produtos', to: '/#produtos' },
   { label: 'Planos', to: '/#planos' },
+  { label: 'Catálogo', to: '/catalogo' },
   { label: 'Dúvidas', to: '/#faq' },
   { label: 'Contato', to: '/#contato' },
 ]

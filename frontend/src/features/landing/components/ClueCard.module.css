@@ -20,10 +20,11 @@
   position: absolute;
   left: 50%;
   top: 0;
-  width: 16px;
+  width: 6px;
   height: 100%;
   transform: translateX(-50%);
-  background: var(--navy-800);
+  background: repeating-linear-gradient(45deg, var(--twine) 0 3px, #cdbb95 3px 5px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 .card {
@@ -34,7 +35,7 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-  background: var(--surface);
+  background: linear-gradient(180deg, #f7efdf, #eadcc2);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
   text-align: left;
@@ -52,10 +53,10 @@
 
 .title {
   color: var(--navy-900);
-  font-family: var(--font-serif);
-  font-size: 19px;
+  font-family: var(--font-hand);
+  font-size: 26px;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.05;
 }
 
 .details {

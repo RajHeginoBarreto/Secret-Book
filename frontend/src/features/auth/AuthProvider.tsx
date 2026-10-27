@@ -44,15 +44,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(
-    async (email: string, password: string) =>
-      startSession(await apiRequest<AuthResponse>('/api/auth/login', { method: 'POST', body: { email, password } })),
+    async (username: string, password: string) =>
+      startSession(await apiRequest<AuthResponse>('/api/auth/login', { method: 'POST', body: { username, password } })),
     [startSession],
   )
 
   const register = useCallback(
-    async (name: string, email: string, password: string) =>
+    async (username: string, password: string, acceptPrivacy: boolean) =>
       startSession(
-        await apiRequest<AuthResponse>('/api/auth/register', { method: 'POST', body: { name, email, password } }),
+        await apiRequest<AuthResponse>('/api/auth/register', {
+          method: 'POST',
+          body: { username, password, acceptPrivacy },
+        }),
       ),
     [startSession],
   )

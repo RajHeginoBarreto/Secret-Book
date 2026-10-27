@@ -1,12 +1,18 @@
 package br.com.secretbook.account;
 
+import br.com.secretbook.account.dto.AccountDtos.AccountExport;
 import br.com.secretbook.account.dto.AccountDtos.AttemptSummary;
+import br.com.secretbook.account.dto.AccountDtos.DeleteAccountRequest;
 import br.com.secretbook.account.dto.AccountDtos.FeedbackRequest;
 import br.com.secretbook.account.dto.AccountDtos.FeedbackResponse;
 import br.com.secretbook.account.dto.AccountDtos.LibraryEntryResponse;
 import br.com.secretbook.account.dto.AccountDtos.LibraryUpdateRequest;
+import br.com.secretbook.account.dto.AccountDtos.ReaderProfileRequest;
+import br.com.secretbook.account.dto.AccountDtos.ReaderProfileResponse;
+import br.com.secretbook.account.dto.AccountDtos.ReviewRequest;
 import br.com.secretbook.account.dto.AccountDtos.SubscribeRequest;
 import br.com.secretbook.account.dto.AccountDtos.SubscriptionResponse;
+import br.com.secretbook.auth.AuthService;
 import br.com.secretbook.auth.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,17 +33,61 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/me")
-@Tag(name = "Minha conta", description = "Biblioteca, favoritos, histórico, avaliações e assinatura do leitor logado")
+@Tag(name = "Minha conta",
+		description = "Perfil, biblioteca, comentários, histórico, avaliações, assinatura e dados (LGPD) do leitor logado")
 public class AccountController {
 
 	private final AccountService account;
 
 	private final SubscriptionService subscriptions;
 
-	public AccountController(AccountService account, SubscriptionService subscriptions) {
+	private final ReaderProfileService profiles;
+
+	private final AccountExportService exports;
+
+	private final AuthService auth;
+
+	public AccountController(AccountService account, SubscriptionService subscriptions, ReaderProfileService profiles,
+			AccountExportService exports, AuthService auth) {
 		this.account = account;
 		this.subscriptions = subscriptions;
+		this.profiles = profiles;
+		this.exports = exports;
+		this.auth = auth;
 	}
+
+	// ===== Dados da conta (LGPD) =====
+
+	@DeleteMapping
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@Operation(summary = "Exclui a conta e todos os dados dela (pede a senha para confirmar)")
+	public void deleteAccount(@AuthenticationPrincipal AuthenticatedUser user,
+			@Valid @RequestBody DeleteAccountRequest request) {
+		auth.deleteAccount(user.id(), request.password());
+	}
+
+	@GetMapping("/export")
+	@Operation(summary = "Exporta em JSON tudo o que a aplicação guarda sobre o leitor")
+	public AccountExport export(@AuthenticationPrincipal AuthenticatedUser user) {
+		return exports.export(user.id());
+	}
+
+	// ===== Perfil do leitor =====
+
+	@GetMapping("/reader-profile")
+	@Operation(summary = "Tipos literários de que o leitor gosta ou não gosta e autores favoritos")
+	public ReaderProfileResponse readerProfile(@AuthenticationPrincipal AuthenticatedUser user) {
+		return profiles.profile(user.id());
+	}
+
+	@PutMapping("/reader-profile")
+	@Operation(summary = "Substitui o perfil do leitor (até 30 itens por lista)")
+	public ReaderProfileResponse updateReaderProfile(@AuthenticationPrincipal AuthenticatedUser user,
+			@Valid @RequestBody ReaderProfileRequest request) {
+		return profiles.update(user.id(), request.likedGenres(), request.dislikedGenres(), request.favoriteAuthors());
+	}
+
+	// ===== Biblioteca =====
 
 	@GetMapping("/library")
 	@Operation(summary = "Livros da biblioteca (com status de leitura e/ou favoritos), do mais recente ao mais antigo")
@@ -57,6 +107,20 @@ public class AccountController {
 	public LibraryEntryResponse updateLibrary(@AuthenticationPrincipal AuthenticatedUser user,
 			@PathVariable String bookSlug, @Valid @RequestBody LibraryUpdateRequest request) {
 		return account.updateLibrary(user.id(), bookSlug, request.status(), request.favorite());
+	}
+
+	@PutMapping("/library/{bookSlug}/review")
+	@Operation(summary = "Comenta (com nota opcional de 1 a 5) um livro marcado como lido")
+	public LibraryEntryResponse review(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable String bookSlug,
+			@Valid @RequestBody ReviewRequest request) {
+		return account.review(user.id(), bookSlug, request.rating(), request.comment());
+	}
+
+	@DeleteMapping("/library/{bookSlug}/review")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@Operation(summary = "Apaga o comentário de um livro")
+	public void deleteReview(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable String bookSlug) {
+		account.deleteReview(user.id(), bookSlug);
 	}
 
 	@GetMapping("/feedback")

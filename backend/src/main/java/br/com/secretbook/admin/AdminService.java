@@ -118,7 +118,7 @@ public class AdminService {
 	}
 
 	private static UserRow toRow(AppUser user) {
-		return new UserRow(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.isEnabled(),
+		return new UserRow(user.getId(), user.getName(), user.getUsername(), user.getEmail(), user.getRole(), user.isEnabled(),
 				user.getCreatedAt());
 	}
 
@@ -132,7 +132,8 @@ public class AdminService {
 	}
 
 	private static FeedbackRow toRow(RecommendationFeedback entry) {
-		return new FeedbackRow(entry.getId(), entry.getUser().getName(), entry.getUser().getEmail(),
+		return new FeedbackRow(entry.getId(), entry.getUser().getName(), entry.getUser().getUsername(),
+				entry.getUser().getEmail(),
 				entry.getBook().getSlug(), entry.getBook().getTitle(), entry.isUseful(), entry.getComment(),
 				entry.getAttempt() == null ? null : entry.getAttempt().getId(), entry.getUpdatedAt());
 	}
@@ -146,8 +147,8 @@ public class AdminService {
 
 	private static SubscriptionRow toRow(Subscription subscription) {
 		return new SubscriptionRow(subscription.getId(), subscription.getUser().getName(),
-				subscription.getUser().getEmail(), subscription.getPlan().getName(), subscription.getStatus(),
-				subscription.getStartedAt(), subscription.getCanceledAt());
+				subscription.getUser().getUsername(), subscription.getUser().getEmail(), subscription.getPlan().getName(),
+				subscription.getStatus(), subscription.getStartedAt(), subscription.getCanceledAt());
 	}
 
 	// ===== Recomendação =====

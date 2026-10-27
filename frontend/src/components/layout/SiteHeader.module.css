@@ -2,9 +2,10 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(247, 250, 253, 0.94);
-  backdrop-filter: saturate(140%) blur(8px);
-  border-bottom: 1px solid var(--line);
+  background: rgba(11, 10, 9, 0.84);
+  backdrop-filter: saturate(140%) blur(12px);
+  border-bottom: 1px solid rgba(208, 170, 85, 0.18);
+  color: var(--text-on-dark);
 }
 
 .inner {
@@ -29,11 +30,30 @@
   display: inline-block;
   padding: 9px 12px;
   border-radius: var(--radius-sm);
-  color: var(--text);
+  position: relative;
+  color: var(--text-on-dark);
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
   text-decoration: none;
   transition: color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.link::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 4px;
+  height: 1px;
+  background: var(--gold-500);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s var(--ease);
+}
+
+.link:hover::after {
+  transform: scaleX(1);
 }
 
 .icon {
@@ -43,8 +63,7 @@
 }
 
 .link:hover {
-  background: var(--blue-100);
-  color: var(--navy-800);
+  color: var(--gold-200);
 }
 
 .ctaItem {
@@ -57,13 +76,13 @@
   height: 44px;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(239, 230, 214, 0.25);
   border-radius: var(--radius-sm);
-  background: var(--white);
-  color: var(--navy-800);
+  background: transparent;
+  color: var(--text-on-dark);
 }
 
-@media (max-width: 880px) {
+@media (max-width: 1080px) {
   .toggle {
     display: inline-flex;
   }
@@ -75,8 +94,8 @@
     right: 0;
     display: none;
     padding: 12px var(--gutter) 20px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--line);
+    background: var(--ink-950);
+    border-bottom: 1px solid rgba(208, 170, 85, 0.2);
     box-shadow: var(--shadow-md);
   }
 

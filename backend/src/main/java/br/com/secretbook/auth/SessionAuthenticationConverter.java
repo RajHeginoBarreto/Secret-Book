@@ -40,7 +40,7 @@ public class SessionAuthenticationConverter implements Converter<Jwt, AbstractAu
 			throw new BadCredentialsException("Sessão inválida.");
 		}
 
-		var principal = new AuthenticatedUser(user.getId(), user.getEmail(), user.getName(), user.getRole(),
+		var principal = new AuthenticatedUser(user.getId(), user.getUsername(), user.getName(), user.getRole(),
 				session.getId());
 		var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 		return UsernamePasswordAuthenticationToken.authenticated(principal, jwt, authorities);

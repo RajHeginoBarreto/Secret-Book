@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AuthService {
 
-	private static final String INVALID_CREDENTIALS = "E-mail ou senha incorretos.";
+	private static final String INVALID_CREDENTIALS = "Nome de usuário ou senha incorretos.";
 
 	private final SecureRandom random = new SecureRandom();
 
@@ -42,7 +42,7 @@ public class AuthService {
 
 	private final Clock clock;
 
-	/** Hash usado quando o e-mail não existe, para o tempo de resposta não revelar quais contas existem. */
+	/** Hash usado quando a conta não existe, para o tempo de resposta não revelar quais contas existem. */
 	private final String dummyHash;
 
 	public AuthService(AppUserRepository users, UserSessionRepository sessions, PasswordResetTokenRepository resetTokens,
@@ -59,16 +59,27 @@ public class AuthService {
 		this.dummyHash = passwordEncoder.encode("senha-que-ninguem-usa-" + UUID.randomUUID());
 	}
 
-	public AuthResponse register(String name, String email, String password) {
-		if (users.existsByEmail(email.trim())) {
-			throw ApiException.conflict("Já existe uma conta com este e-mail.");
+	/**
+	 * Cria uma conta de leitor só com nome de usuário e senha (o nome de exibição começa igual ao nome de usuário).
+	 * Quem chega aqui já aceitou a política de privacidade (validado na requisição).
+	 */
+	public AuthResponse register(String username, String password) {
+		String normalized = Usernames.normalize(username);
+		if (users.existsByUsername(normalized)) {
+			throw ApiException.conflict("Este nome de usuário já está em uso.");
 		}
-		AppUser user = users.save(new AppUser(name.trim(), email, passwordEncoder.encode(password), Role.READER));
-		return authResponse(user);
+		AppUser user = new AppUser(normalized, normalized, null, passwordEncoder.encode(password), Role.READER);
+		user.setPrivacyAcceptedAt(clock.instant());
+		return authResponse(users.save(user));
 	}
 
-	public AuthResponse login(String email, String password) {
-		Optional<AppUser> found = users.findByEmail(email.trim());
+	/** Entra pelo nome de usuário; se o valor tiver "@", também procura pelo e-mail (contas antigas e admin). */
+	public AuthResponse login(String username, String password) {
+		String normalized = Usernames.normalize(username);
+		Optional<AppUser> found = users.findByUsername(normalized);
+		if (found.isEmpty() && normalized.contains("@")) {
+			found = users.findByEmail(normalized);
+		}
 		String hash = found.map(AppUser::getPasswordHash).orElse(dummyHash);
 		boolean matches = passwordEncoder.matches(password, hash);
 		AppUser user = found.filter(candidate -> matches)
@@ -130,6 +141,19 @@ public class AuthService {
 		user.setPasswordHash(passwordEncoder.encode(newPassword));
 		resetToken.markUsed(now);
 		sessions.revokeAll(user.getId(), null, now);
+	}
+
+	/**
+	 * Exclui a conta e tudo o que depende dela (sessões, biblioteca, preferências, avaliações, assinaturas). As
+	 * tentativas do quiz ficam anônimas. Pede a senha de novo para confirmar.
+	 */
+	public void deleteAccount(Long userId, String password) {
+		AppUser user = findUser(userId);
+		if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+			throw ApiException.badRequest("A senha está incorreta.");
+		}
+		users.delete(user);
+		users.flush();
 	}
 
 	private AuthResponse authResponse(AppUser user) {

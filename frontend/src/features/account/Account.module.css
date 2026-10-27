@@ -202,3 +202,39 @@
     justify-content: flex-start;
   }
 }
+
+.facts {
+  display: grid;
+  gap: 8px;
+}
+
+.facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--line);
+}
+
+.facts dt {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.facts dd {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.danger {
+  border-color: rgba(163, 45, 45, 0.35);
+}
+
+.danger h2 {
+  color: var(--danger);
+}
+
+.muted a {
+  color: var(--kraft-dark);
+  font-weight: 600;
+}

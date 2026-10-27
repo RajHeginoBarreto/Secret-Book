@@ -17,7 +17,7 @@ import java.time.Instant;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-/** Um livro na biblioteca do leitor: status de leitura e/ou favorito. */
+/** Um livro na biblioteca do leitor: status de leitura e/ou favorito e, para livros lidos, o comentário. */
 @Entity
 public class UserBook {
 
@@ -39,6 +39,13 @@ public class UserBook {
 
 	@Column(nullable = false)
 	private boolean favorite;
+
+	/** Nota de 1 a 5 (opcional) do comentário. */
+	private Short rating;
+
+	private String comment;
+
+	private Instant reviewedAt;
 
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
@@ -75,6 +82,35 @@ public class UserBook {
 
 	public void setFavorite(boolean favorite) {
 		this.favorite = favorite;
+	}
+
+	public AppUser getUser() {
+		return user;
+	}
+
+	public Integer getRating() {
+		return rating == null ? null : rating.intValue();
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public Instant getReviewedAt() {
+		return reviewedAt;
+	}
+
+	/** Grava (ou substitui) o comentário do leitor. */
+	public void review(Integer rating, String comment, Instant now) {
+		this.rating = rating == null ? null : rating.shortValue();
+		this.comment = comment;
+		this.reviewedAt = now;
+	}
+
+	public void clearReview() {
+		this.rating = null;
+		this.comment = null;
+		this.reviewedAt = null;
 	}
 
 	public Instant getUpdatedAt() {

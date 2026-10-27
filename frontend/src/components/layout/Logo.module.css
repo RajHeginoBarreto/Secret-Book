@@ -1,27 +1,41 @@
 .logo {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  flex-shrink: 0;
   text-decoration: none;
-  color: var(--navy-900);
+  transition: transform 0.4s var(--ease-spring);
 }
 
-.mark {
-  width: 57px;
-  height: 38px;
-  object-fit: contain;
-  /* A arte original tem fundo branco; "multiply" o funde ao fundo claro do cabeçalho. */
-  mix-blend-mode: multiply;
+.logo:hover {
+  transform: rotate(-3deg) scale(1.04);
 }
 
-.name {
-  font-family: var(--font-serif);
-  font-size: 25px;
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
+.image {
+  width: auto;
+  height: 100%;
 }
 
+.md {
+  height: 58px;
+}
+
+.lg {
+  height: 150px;
+}
+
+/* Em fundos escuros, a logo (roxo e terracota) vai sobre uma etiqueta de papel, como as bandeirolas. */
 .light {
-  color: var(--white);
+  padding: 4px 10px;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 7px, rgba(60, 40, 20, 0.05) 7px 8px),
+    var(--paper);
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 90, 50, 0.2),
+    0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.light.lg {
+  padding: 12px 18px;
+  border-radius: 14px;
 }
