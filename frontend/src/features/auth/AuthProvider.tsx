@@ -8,6 +8,7 @@ import type { AuthContextValue, AuthResponse, AuthStatus, User } from './authTyp
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [status, setStatus] = useState<AuthStatus>(() => (getAuthToken() ? 'loading' : 'anonymous'))
+  const [signedOut, setSignedOut] = useState(false)
 
   useEffect(() => {
     if (!getAuthToken()) return
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthToken(response.token)
     setUser(response.user)
     setStatus('authenticated')
+    setSignedOut(false)
     return response.user
   }, [])
 
@@ -69,11 +71,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthToken(null)
     setUser(null)
     setStatus('anonymous')
+    setSignedOut(true)
   }, [])
 
   const value = useMemo<AuthContextValue>(
-    () => ({ status, user, login, register, logout, updateUser: setUser }),
-    [status, user, login, register, logout],
+    () => ({ status, user, signedOut, login, register, logout, updateUser: setUser }),
+    [status, user, signedOut, login, register, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

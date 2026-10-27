@@ -298,6 +298,13 @@
   }
 }
 
+/* Deixa espaço para o botão flutuante do WhatsApp, que fica no canto inferior direito. */
+@media (max-width: 640px) {
+  .saveBar {
+    padding-right: 76px;
+  }
+}
+
 @media (max-width: 480px) {
   .shelf {
     grid-template-columns: 1fr;

@@ -42,12 +42,14 @@ public class AuthService {
 
 	private final Clock clock;
 
+	private final LoginAttemptLimiter loginLimiter;
+
 	/** Hash usado quando a conta não existe, para o tempo de resposta não revelar quais contas existem. */
 	private final String dummyHash;
 
 	public AuthService(AppUserRepository users, UserSessionRepository sessions, PasswordResetTokenRepository resetTokens,
 			PasswordEncoder passwordEncoder, TokenService tokens, PasswordResetNotifier notifier,
-			AuthProperties properties, Clock clock) {
+			AuthProperties properties, Clock clock, LoginAttemptLimiter loginLimiter) {
 		this.users = users;
 		this.sessions = sessions;
 		this.resetTokens = resetTokens;
@@ -56,6 +58,7 @@ public class AuthService {
 		this.notifier = notifier;
 		this.properties = properties;
 		this.clock = clock;
+		this.loginLimiter = loginLimiter;
 		this.dummyHash = passwordEncoder.encode("senha-que-ninguem-usa-" + UUID.randomUUID());
 	}
 
@@ -74,16 +77,21 @@ public class AuthService {
 	}
 
 	/** Entra pelo nome de usuário; se o valor tiver "@", também procura pelo e-mail (contas antigas e admin). */
-	public AuthResponse login(String username, String password) {
+	public AuthResponse login(String username, String password, String clientIp) {
 		String normalized = Usernames.normalize(username);
+		loginLimiter.check(normalized, clientIp);
 		Optional<AppUser> found = users.findByUsername(normalized);
 		if (found.isEmpty() && normalized.contains("@")) {
 			found = users.findByEmail(normalized);
 		}
 		String hash = found.map(AppUser::getPasswordHash).orElse(dummyHash);
 		boolean matches = passwordEncoder.matches(password, hash);
-		AppUser user = found.filter(candidate -> matches)
-			.orElseThrow(() -> ApiException.unauthorized(INVALID_CREDENTIALS));
+		if (found.isEmpty() || !matches) {
+			loginLimiter.recordFailure(normalized, clientIp);
+			throw ApiException.unauthorized(INVALID_CREDENTIALS);
+		}
+		AppUser user = found.get();
+		loginLimiter.recordSuccess(normalized);
 		if (!user.isEnabled()) {
 			throw ApiException.forbidden("Esta conta está desativada. Fale com o suporte.");
 		}
@@ -152,8 +160,7 @@ public class AuthService {
 		if (!passwordEncoder.matches(password, user.getPasswordHash())) {
 			throw ApiException.badRequest("A senha está incorreta.");
 		}
-		users.delete(user);
-		users.flush();
+		users.deleteAccount(user.getId());
 	}
 
 	private AuthResponse authResponse(AppUser user) {

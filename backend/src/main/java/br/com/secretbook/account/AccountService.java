@@ -10,6 +10,7 @@ import br.com.secretbook.catalog.Book;
 import br.com.secretbook.catalog.BookRepository;
 import br.com.secretbook.catalog.CatalogMapper;
 import br.com.secretbook.common.error.ApiException;
+import br.com.secretbook.common.Slugs;
 import br.com.secretbook.common.error.ResourceNotFoundException;
 import br.com.secretbook.quiz.AttemptRecommendation;
 import br.com.secretbook.quiz.QuizAttempt;
@@ -39,15 +40,19 @@ public class AccountService implements ReaderHistory {
 
 	private final AppUserRepository users;
 
+	private final ReaderGenrePreferenceRepository genrePreferences;
+
 	private final Clock clock;
 
 	public AccountService(UserBookRepository library, RecommendationFeedbackRepository feedback,
-			QuizAttemptRepository attempts, BookRepository books, AppUserRepository users, Clock clock) {
+			QuizAttemptRepository attempts, BookRepository books, AppUserRepository users,
+			ReaderGenrePreferenceRepository genrePreferences, Clock clock) {
 		this.library = library;
 		this.feedback = feedback;
 		this.attempts = attempts;
 		this.books = books;
 		this.users = users;
+		this.genrePreferences = genrePreferences;
 		this.clock = clock;
 	}
 
@@ -148,12 +153,23 @@ public class AccountService implements ReaderHistory {
 			.toList();
 	}
 
-	/** Livros lidos ou avaliados como "não combina" deixam de ser recomendados para o leitor. */
+	/**
+	 * Livros lidos, avaliados como "não combina" ou de um gênero que o leitor marcou como "não gosto" no perfil deixam
+	 * de ser recomendados. O tipo literário do perfil casa com o gênero do catálogo pelo slug ("Ficção científica" →
+	 * "ficcao-cientifica"); tipos sem gênero equivalente no catálogo não têm efeito.
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public Set<Long> handledBookIds(Long userId) {
 		Set<Long> ids = new HashSet<>(library.findBookIdsByStatus(userId, ReadingStatus.READ));
 		ids.addAll(feedback.findRejectedBookIds(userId));
+		List<String> dislikedSlugs = genrePreferences.findByUser(userId).stream()
+			.filter(preference -> !preference.isLiked())
+			.map(preference -> Slugs.of(preference.getLabel()))
+			.toList();
+		if (!dislikedSlugs.isEmpty()) {
+			ids.addAll(books.findIdsByGenreSlugs(dislikedSlugs));
+		}
 		return ids;
 	}
 

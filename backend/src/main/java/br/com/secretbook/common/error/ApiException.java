@@ -29,6 +29,10 @@ public class ApiException extends RuntimeException {
 		return new ApiException(HttpStatus.UNAUTHORIZED, "Não autorizado", detail);
 	}
 
+	public static ApiException tooManyRequests(String detail) {
+		return new ApiException(HttpStatus.TOO_MANY_REQUESTS, "Muitas tentativas", detail);
+	}
+
 	public static ApiException forbidden(String detail) {
 		return new ApiException(HttpStatus.FORBIDDEN, "Acesso negado", detail);
 	}

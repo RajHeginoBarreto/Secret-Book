@@ -10,34 +10,46 @@ quiz, recebe um perfil literário e descobre livros "às cegas", guiado por pist
 
 | Parte | Situação |
 |---|---|
-| `backend/` (Spring Boot) | ✅ Etapas 1 a 6 implementadas: catálogo, quiz v2 com recomendação explicável, autenticação, área do leitor e painel administrativo. **71 testes passando.** |
-| `frontend/` (React + TypeScript) | 🟡 Todas as telas escritas (catálogo, quiz v2, login/cadastro, minha conta, painel). Compila e passa no lint, mas **as telas novas ainda não têm testes nem foram verificadas no navegador** (ver Pendências). |
-| Arquivos na raiz (`index.html`, `Quiz.html`, `estilo.css`, `img/`) | 📦 Site estático original, mantido como referência até a nova versão ser aprovada. |
+| `backend/` (Spring Boot) | ✅ Catálogo, quiz v2 com recomendação explicável, login só com nome de usuário e senha (LGPD), limite de tentativas de login, perfil do leitor, comentários, exportação/exclusão de conta e painel administrativo. **86 testes passando.** |
+| `frontend/` (React + TypeScript) | ✅ Landing redesenhada, catálogo, quiz, login/cadastro, perfil do leitor, minha conta e painel. **134 testes passando.** |
 
-## Pendências (o que falta fazer)
+## Pendências
 
-- [ ] **Testes do frontend para as telas novas** (Vitest + Testing Library, usando o simulador de API em
-      `src/test/mockApi.ts`):
-  - [ ] Catálogo: lista, filtro por gênero, busca, paginação, página do livro e do autor (incluindo 404).
-  - [ ] Quiz v2: fluxo completo, pergunta condicional (`tipo-de-magia` só aparece após escolher "magia"),
-        opção exclusiva "Nenhum" na pergunta de temas, retomada do progresso salvo, envio e tela de resultado
-        (revelar livro, justificativas, avaliação só com login).
-  - [ ] Autenticação: login (sucesso, erro e redirecionamento `?voltar=`), cadastro com erros de campo vindos da
-        API, esqueci/redefinir senha, `RequireAuth` redirecionando visitantes e mostrando 403 para não-admins.
-  - [ ] Minha conta: visão geral, biblioteca (status, favorito, remover), histórico, avaliações, perfil e troca
-        de senha.
-  - [ ] Painel: visão geral, cadastro/edição/exclusão de livros, autores, gêneros, usuários (papel e acesso),
-        avaliações, assinaturas e pesos da recomendação.
-  - [ ] Simulação de assinatura com login (grava na conta) e sem login (não grava).
-- [ ] **Verificar tudo no navegador** com banco + backend + frontend rodando juntos: fluxos reais, layout no
-      celular (largura ~375 px) e mensagens de erro.
-- [ ] **Escrever a seção "Como funciona a recomendação"** neste README (resumo do que está documentado em
-      `backend/src/main/java/br/com/secretbook/quiz/engine/RecommendationEngine.java`).
-- [x] **Logo pesado:** trocado por um SVG desenhado no próprio componente `Logo.tsx` (o arquivo de 1,5 MB foi removido).
-- [ ] **E-mail de verdade** para a recuperação de senha (hoje o link sai só no log do backend; ver
-      `LoggingPasswordResetNotifier`).
-- [ ] **Limite de tentativas de login** (proteção contra força bruta), ainda não implementado.
-- [ ] Decidir quando aposentar o site estático da raiz.
+Nenhuma pendência aberta. Concluído nesta rodada:
+
+- [x] Testes do frontend para todas as telas (catálogo, quiz, autenticação, minha conta, perfil do leitor, painel e
+      simulação de assinatura), com o simulador de API em `src/test/mockApi.ts`.
+- [x] Verificado no navegador com banco + backend + frontend juntos: cadastro, perfil do leitor, comentário público, preferências, exportação, bloqueio de login, exclusão de conta e layout no celular (375 px).
+- [x] Seção "Como funciona a recomendação" (abaixo).
+- [x] Logo oficial sem fundo (`frontend/src/assets/secret-book-logo-*.webp`), com versão de letreiro claro para fundos escuros, no lugar do arquivo de 1,5 MB.
+- [x] E-mail de verdade para a recuperação de senha: com `SPRING_MAIL_HOST` definido, o link vai por SMTP
+      (`SmtpPasswordResetNotifier`); sem ele, continua indo para o log. Só contas com e-mail recebem.
+- [x] Limite de tentativas de login: 5 falhas por conta ou 30 por IP em 15 minutos bloqueiam novas tentativas
+      (HTTP 429) até a janela passar; um login certo zera o contador da conta.
+- [x] Site estático da raiz aposentado (continua no histórico do Git).
+
+## Como funciona a recomendação
+
+O motor fica em `backend/src/main/java/br/com/secretbook/quiz/engine/` e é determinístico: as mesmas respostas
+geram sempre o mesmo resultado.
+
+1. **Perfil de preferências.** Cada opção do quiz soma pontos em quatro dimensões: gêneros, ritmo (lento,
+   equilibrado, rápido), clima (leve, emocionante, sombrio, reflexivo) e tamanho (curto, médio, longo ou "tanto
+   faz"). A pergunta de temas a evitar marca conteúdos sensíveis (violência, luto, terror...). Em empate, vale a
+   resposta mais recente.
+2. **Perfil literário.** O nome do perfil vem do gênero mais forte, ou da combinação dos dois mais fortes quando o
+   segundo tem pelo menos `mix_threshold` pontos (ex.: "fantasia+romance").
+3. **Exclusões.** Nunca são recomendados livros com temas a evitar e, para quem está logado, livros já lidos,
+   avaliados como "não combina" ou de um gênero marcado como "não gosto" no perfil do leitor (o tipo literário casa
+   com o gênero do catálogo pelo nome: "Ficção científica" → `ficcao-cientifica`).
+4. **Nota de cada critério (0 a 1).**
+   - Gênero: soma das frações do perfil que foram para os gêneros do livro (máximo 1).
+   - Ritmo e tamanho: 1 se igual ao preferido, 0,5 se vizinho, 0 se oposto; tamanho "tanto faz" vale 1.
+   - Clima: pontos do clima do livro divididos pelos pontos do clima preferido.
+5. **Nota final (0 a 100)** = média ponderada dos critérios. Pesos padrão: gênero 0,50, clima 0,20, ritmo 0,15,
+   tamanho 0,15; ajustáveis no painel (`/admin/recomendacao`), assim como a quantidade de livros (padrão 5).
+6. **Ordem e explicação.** Ordena pela nota, depois pela nota de gênero e pelo título. Cada livro vem com a nota de
+   cada critério e frases explicando a escolha ("Gênero Fantasia, que representa 60% do seu perfil"...).
 
 ## Tecnologias
 
@@ -123,6 +135,9 @@ Todas são opcionais em desenvolvimento.
 | `FRONTEND_URL` | `http://localhost:5173` | Usado para montar o link de redefinição de senha |
 | `ADMIN_USERNAME` | `admin` | Nome de usuário do administrador inicial (ver acima) |
 | `ADMIN_PASSWORD` / `ADMIN_EMAIL` / `ADMIN_NAME` | vazio / vazio / `Administrador` | Senha (sem ela, nenhum admin é criado), e-mail opcional e nome de exibição do administrador inicial |
+| `LOGIN_MAX_FAILURES_PER_ACCOUNT` / `LOGIN_MAX_FAILURES_PER_IP` / `LOGIN_WINDOW` | `5` / `30` / `15m` | Limite de tentativas de login erradas |
+| `SPRING_MAIL_HOST` (+ `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`) | vazio | Servidor SMTP para o e-mail de redefinição de senha; vazio = link no log |
+| `MAIL_FROM` | `nao-responda@secretbook.local` | Remetente do e-mail de redefinição |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:5173` | Origens do frontend autorizadas, separadas por vírgula |
 | `PORT` | `8080` | Porta HTTP da API |
 
@@ -171,17 +186,17 @@ frontend/src/
 │   ├── layout/        # cabeçalho (menu mobile, Entrar/Minha conta/Painel), rodapé, layout raiz
 │   └── ui/            # Button, campos de formulário, paginação, estados de carregamento/erro/vazio
 ├── config/site.ts     # dados públicos do site (nome, WhatsApp)
-├── data/              # planos, FAQ e depoimentos demonstrativos da landing
+├── data/              # planos e FAQ demonstrativos da landing
 ├── features/
-│   ├── landing/       # landing page, uma seção por arquivo
+│   ├── landing/       # landing page (uma seção por arquivo) e ilustrações em CSS (pacote kraft, bandeirolas...)
 │   ├── catalog/       # catálogo, página do livro e do autor
 │   ├── quiz/          # quiz v2 (perguntas da API), resultado e cartões de recomendação
 │   ├── auth/          # sessão (AuthProvider), login, cadastro, senha, proteção de rotas
-│   ├── account/       # minha conta: visão geral, biblioteca, histórico, avaliações, perfil
+│   ├── account/       # minha conta: perfil do leitor, comentários, biblioteca, histórico, avaliações, privacidade
 │   ├── admin/         # painel administrativo
 │   ├── plans/         # simulação de assinatura
-│   └── misc/          # 404
-├── hooks/             # usePageTitle, useApi
+│   └── misc/          # 404 e política de privacidade
+├── hooks/             # usePageTitle, useApi, useReveal (animação ao rolar)
 ├── styles/            # tokens.css (paleta, tipografia, sombras) e global.css
 ├── test/              # setup dos testes, renderRoute e simulador de API (mockApi)
 ├── router.tsx         # tabela de rotas
@@ -196,8 +211,9 @@ frontend/src/
 | `/catalogo`, `/livros/:slug`, `/autores/:slug` | Catálogo demonstrativo |
 | `/quiz`, `/quiz/resultado/:id` | Quiz v2 e resultado com recomendações |
 | `/assinar/:planSlug` | Simulação de assinatura (com login, fica registrada na conta) |
-| `/entrar`, `/cadastro`, `/esqueci-senha`, `/redefinir-senha` | Autenticação |
-| `/minha-conta` (+ `/biblioteca`, `/historico`, `/avaliacoes`, `/perfil`) | Área do leitor (exige login) |
+| `/entrar`, `/cadastro`, `/esqueci-senha`, `/redefinir-senha` | Autenticação (nome de usuário e senha) |
+| `/privacidade` | Política de privacidade (LGPD) |
+| `/minha-conta` (+ `/leitor`, `/biblioteca`, `/historico`, `/avaliacoes`, `/perfil`) | Área do leitor (exige login) |
 | `/admin` (+ `/livros`, `/autores`, `/generos`, `/usuarios`, `/avaliacoes`, `/assinaturas`, `/recomendacao`) | Painel administrativo (exige papel ADMIN) |
 | qualquer outra | Página 404 |
 
@@ -214,11 +230,11 @@ frontend/src/
 
 ## Limitações conhecidas
 
-- **Recuperação de senha sem e-mail:** o link aparece no log do backend (protótipo). Contas novas não têm e-mail
-  (minimização de dados), então só contas antigas e o admin com `ADMIN_EMAIL` conseguem recuperar a senha.
+- **Recuperação de senha:** contas novas não têm e-mail (minimização de dados), então só contas antigas e o admin
+  com `ADMIN_EMAIL` recuperam a senha sozinhos; os demais pedem ajuda pelo WhatsApp.
 - **Token no `localStorage`:** simples para o protótipo, mas vulnerável se houver XSS; a sessão pode ser revogada no
   servidor a qualquer momento.
-- **Sem limite de tentativas de login.**
+- **Limite de login em memória:** os contadores valem por instância do backend e zeram ao reiniciar.
 - **Tentativas anônimas do quiz** não são associadas à conta se a pessoa fizer login depois.
 - **Contato:** o formulário apenas monta a mensagem e abre o WhatsApp.
 
@@ -231,4 +247,4 @@ frontend/src/
 5. ~~Dashboard: biblioteca, favoritos, histórico, feedback de recomendações, assinatura demonstrativa persistida.~~ ✅
 6. ~~Painel administrativo (etapa final; auditoria fora do escopo).~~ ✅
 
-Implementado; falta concluir os itens de **Pendências** (testes do frontend e verificação no navegador).
+7. ~~Redesign da landing, login só com nome e senha (LGPD) e perfil do leitor.~~ ✅

@@ -4,6 +4,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
@@ -27,5 +28,13 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 	Page<AppUser> search(String pattern, Pageable pageable);
 
 	long countByRole(Role role);
+
+	/**
+	 * Apaga a conta direto no banco: as chaves estrangeiras levam junto sessões, biblioteca, preferências etc. Limpa o
+	 * contexto de persistência, para nenhuma entidade carregada (como a sessão atual) apontar para o usuário apagado.
+	 */
+	@Modifying(flushAutomatically = true, clearAutomatically = true)
+	@Query("delete from AppUser u where u.id = :id")
+	void deleteAccount(Long id);
 
 }

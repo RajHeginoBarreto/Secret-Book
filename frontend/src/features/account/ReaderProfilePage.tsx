@@ -309,7 +309,7 @@ function PreferencesEditor({ initial, onSaved }: { initial: ReaderProfile; onSav
         body: { likedGenres: liked, dislikedGenres: disliked, favoriteAuthors: authors },
       })
       onSaved(saved)
-      setMessage({ tone: 'success', text: 'Preferências salvas. As próximas recomendações vão levar isso em conta.' })
+      setMessage({ tone: 'success', text: 'Preferências salvas. Livros dos gêneros que você não gosta saem das próximas recomendações do quiz.' })
     } catch (caught) {
       setMessage({ tone: 'danger', text: toApiError(caught).message })
     } finally {

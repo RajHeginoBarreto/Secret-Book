@@ -6,12 +6,16 @@ import { usePageTitle } from '../../hooks/usePageTitle'
 import { useAuth } from './AuthContext'
 import styles from '../misc/NotFoundPage.module.css'
 
-/** Protege uma área: visitantes vão para o login (e voltam depois); papel insuficiente vê "acesso negado". */
+/**
+ * Protege uma área: visitantes vão para o login (e voltam depois); papel insuficiente vê "acesso negado".
+ * Quem acabou de sair da conta vai para a página inicial, e não para o login.
+ */
 export function RequireAuth({ children, role }: { children: ReactNode; role?: 'ADMIN' }) {
-  const { status, user } = useAuth()
+  const { status, user, signedOut } = useAuth()
   const location = useLocation()
 
   if (status === 'loading') return <LoadingState label="Verificando sua sessão…" />
+  if (status === 'anonymous' && signedOut) return <Navigate to="/" replace />
   if (status === 'anonymous' || !user) {
     const back = encodeURIComponent(location.pathname + location.search)
     return <Navigate to={`/entrar?voltar=${back}`} replace />

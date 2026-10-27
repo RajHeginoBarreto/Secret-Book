@@ -21,6 +21,8 @@ export type AuthStatus = 'loading' | 'authenticated' | 'anonymous'
 export interface AuthContextValue {
   status: AuthStatus
   user: User | null
+  /** true depois que a própria pessoa saiu (ou excluiu a conta); volta a false no próximo login. */
+  signedOut: boolean
   login: (username: string, password: string) => Promise<User>
   register: (username: string, password: string, acceptPrivacy: boolean) => Promise<User>
   logout: () => Promise<void>

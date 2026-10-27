@@ -5,8 +5,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.com.secretbook.auth.AppUser;
 import br.com.secretbook.auth.AppUserRepository;
+import br.com.secretbook.auth.LoginAttemptLimiter;
 import br.com.secretbook.auth.Role;
 import com.jayway.jsonpath.JsonPath;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -38,6 +40,15 @@ public abstract class IntegrationTest {
 
 	@Autowired
 	protected PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private LoginAttemptLimiter loginLimiter;
+
+	/** O contexto é compartilhado: falhas de login de um teste não podem bloquear o próximo. */
+	@BeforeEach
+	void resetLoginLimiter() {
+		loginLimiter.clear();
+	}
 
 	/** Cria uma conta de leitor pela API (só nome de usuário e senha) e devolve o token da sessão aberta. */
 	protected String registerReader(String username) throws Exception {

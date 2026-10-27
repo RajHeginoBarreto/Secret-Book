@@ -11,6 +11,7 @@ import br.com.secretbook.auth.dto.AuthDtos.UpdateProfileRequest;
 import br.com.secretbook.auth.dto.AuthDtos.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,8 +43,8 @@ public class AuthController {
 
 	@PostMapping("/login")
 	@Operation(summary = "Abre uma sessão com nome de usuário (ou e-mail, em contas antigas) e devolve o token (Bearer)")
-	public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-		return auth.login(request.username(), request.password());
+	public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
+		return auth.login(request.username(), request.password(), http.getRemoteAddr());
 	}
 
 	@PostMapping("/logout")

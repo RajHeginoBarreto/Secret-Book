@@ -24,6 +24,17 @@ export function ProfilePage() {
 
   if (!user) return null
 
+  /**
+   * Primeiro sai da área logada e só depois encerra a sessão. Na ordem inversa, o RequireAuth desta página veria o
+   * visitante anônimo e mandaria para o login (com "voltar" para cá) por cima da navegação para a página inicial.
+   */
+  const leaveAndSignOut = async ({ accountDeleted = false } = {}) => {
+    await navigate('/', { replace: true })
+    // Com a conta apagada, a sessão já não existe no servidor: não há o que encerrar lá.
+    if (accountDeleted) setAuthToken(null)
+    await logout()
+  }
+
   const changePassword = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
@@ -82,19 +93,13 @@ export function ProfilePage() {
     setDeleteError(null)
     try {
       await apiRequest('/api/me', { method: 'DELETE', body: { password } })
-      setAuthToken(null)
-      await logout()
-      navigate('/', { replace: true })
+      await leaveAndSignOut({ accountDeleted: true })
     } catch (caught) {
       setDeleteError(toApiError(caught).message)
       setBusy(null)
     }
   }
 
-  const handleLogout = async () => {
-    await logout()
-    navigate('/')
-  }
 
   return (
     <div className={styles.grid}>
@@ -157,7 +162,7 @@ export function ProfilePage() {
       <section className={styles.panel} aria-labelledby="sessao">
         <h2 id="sessao">Sessão</h2>
         <p className={styles.muted}>Sair encerra a sessão neste navegador na hora.</p>
-        <Button variant="outline" onClick={handleLogout}>
+        <Button variant="outline" onClick={() => leaveAndSignOut()}>
           <LogOut size={16} aria-hidden="true" /> Sair da conta
         </Button>
       </section>

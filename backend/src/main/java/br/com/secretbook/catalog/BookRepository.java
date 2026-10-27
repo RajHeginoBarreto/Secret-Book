@@ -1,7 +1,9 @@
 package br.com.secretbook.catalog;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book> {
 
 	Optional<Book> findBySlug(String slug);
+
+	@Query("select distinct b.id from Book b join b.genres g where g.slug in :genreSlugs")
+	Set<Long> findIdsByGenreSlugs(Collection<String> genreSlugs);
 
 	Optional<Book> findBySlugAndActiveTrue(String slug);
 

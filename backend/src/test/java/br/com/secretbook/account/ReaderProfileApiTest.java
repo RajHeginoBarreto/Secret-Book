@@ -1,5 +1,6 @@
 package br.com.secretbook.account;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -8,12 +9,39 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.com.secretbook.IntegrationTest;
 import br.com.secretbook.auth.AppUser;
+import br.com.secretbook.catalog.BookRepository;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 class ReaderProfileApiTest extends IntegrationTest {
 
 	private static final String BOOK = "/api/me/library/um-verao-em-paraty";
+
+	@Autowired
+	private AccountService account;
+
+	@Autowired
+	private BookRepository books;
+
+	@Test
+	void dislikedGenresLeaveTheRecommendations() throws Exception {
+		String token = registerReader("nao-gosta-de-misterio");
+		Long userId = users.findByUsername("nao-gosta-de-misterio").orElseThrow().getId();
+		assertThat(account.handledBookIds(userId)).isEmpty();
+
+		mockMvc.perform(put("/api/me/reader-profile").with(bearer(token)).contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"likedGenres": ["Romance"], "dislikedGenres": ["Mistério", "Terror"], "favoriteAuthors": []}"""))
+			.andExpect(status().isOk());
+
+		// "Mistério" casa com o gênero "misterio" do catálogo; "Terror" não existe no catálogo e não tem efeito.
+		Set<Long> mysteryBooks = books.findIdsByGenreSlugs(List.of("misterio"));
+		assertThat(mysteryBooks).isNotEmpty();
+		assertThat(account.handledBookIds(userId)).isEqualTo(mysteryBooks);
+	}
 
 	@Test
 	void readerProfileStartsEmptyAndIsReplacedAsAWhole() throws Exception {

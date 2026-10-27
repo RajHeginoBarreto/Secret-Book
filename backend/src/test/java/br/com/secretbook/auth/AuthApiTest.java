@@ -98,6 +98,37 @@ class AuthApiTest extends IntegrationTest {
 	}
 
 	@Test
+	void blocksTheAccountAfterTooManyWrongPasswords() throws Exception {
+		registerReader("leitora-teimosa");
+		for (int attempt = 0; attempt < 5; attempt++) {
+			mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+					.content("""
+							{"username": "leitora-teimosa", "password": "errada123"}"""))
+				.andExpect(status().isUnauthorized());
+		}
+		// Nem a senha certa entra enquanto a conta estiver bloqueada.
+		mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"username": "LEITORA-TEIMOSA", "password": "%s"}""".formatted(PASSWORD)))
+			.andExpect(status().isTooManyRequests())
+			.andExpect(jsonPath("$.detail").value("Muitas tentativas de login. Tente de novo em 15 minutos."));
+	}
+
+	@Test
+	void aSuccessfulLoginResetsTheFailureCount() throws Exception {
+		registerReader("leitora-distraida");
+		for (int round = 0; round < 2; round++) {
+			for (int attempt = 0; attempt < 4; attempt++) {
+				mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{"username": "leitora-distraida", "password": "errada123"}"""))
+					.andExpect(status().isUnauthorized());
+			}
+			login("leitora-distraida", PASSWORD);
+		}
+	}
+
+	@Test
 	void legacyAccountsCanStillLogInWithTheirEmail() throws Exception {
 		createLegacyReader("antiga", "antiga@example.com");
 
