@@ -138,6 +138,7 @@ Todas são opcionais em desenvolvimento.
 | `LOGIN_MAX_FAILURES_PER_ACCOUNT` / `LOGIN_MAX_FAILURES_PER_IP` / `LOGIN_WINDOW` | `5` / `30` / `15m` | Limite de tentativas de login erradas |
 | `SPRING_MAIL_HOST` (+ `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`) | vazio | Servidor SMTP para o e-mail de redefinição de senha; vazio = link no log |
 | `MAIL_FROM` | `nao-responda@secretbook.local` | Remetente do e-mail de redefinição |
+| `FORWARD_HEADERS_STRATEGY` | `none` | Use `framework` atrás de proxy (Railway, Render...) para o IP real chegar ao limite de login |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:5173` | Origens do frontend autorizadas, separadas por vírgula |
 | `PORT` | `8080` | Porta HTTP da API |
 
@@ -176,6 +177,96 @@ A documentação completa está no Swagger. Rotas públicas, de leitor logado e 
   hora. Senhas com BCrypt; o link de redefinição guarda só o hash (SHA-256) e vale 30 minutos.
 - **Testes de integração**: estendem `IntegrationTest` (aplicação completa + PostgreSQL em contêiner compartilhado),
   e cada teste roda em uma transação desfeita no final.
+
+## Como publicar na web (manual)
+
+São três peças: **banco PostgreSQL** e **backend** no [Railway](https://railway.com) e **frontend** na
+[Netlify](https://www.netlify.com). O repositório já traz o que cada um precisa: `backend/Dockerfile`,
+`backend/railway.json` (verificação de saúde em `/actuator/health`) e `netlify.toml` na raiz.
+As tabelas e os dados demonstrativos são criados sozinhos na primeira subida do backend (Flyway).
+
+### Antes de começar: gere uma chave JWT
+
+No PowerShell (guarde o resultado, ele vai em `JWT_SECRET`):
+
+```powershell
+$b = New-Object byte[] 48; [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($b); [Convert]::ToBase64String($b)
+```
+
+### 1. Banco e backend no Railway
+
+**Pelo painel (railway.com):**
+
+1. *New Project* → *Deploy from GitHub repo* → escolha `Secret-Book`.
+2. No serviço criado, em *Settings*: **Root Directory** = `backend` (o Railway acha o `Dockerfile` e o
+   `railway.json` sozinho).
+3. No projeto, *+ New* → *Database* → *PostgreSQL*.
+4. No serviço do backend, aba *Variables*, adicione:
+
+   | Variável | Valor |
+   |---|---|
+   | `DB_URL` | `jdbc:postgresql://${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}` |
+   | `DB_USERNAME` | `${{Postgres.PGUSER}}` |
+   | `DB_PASSWORD` | `${{Postgres.PGPASSWORD}}` |
+   | `JWT_SECRET` | a chave gerada acima |
+   | `FORWARD_HEADERS_STRATEGY` | `framework` (o limite de login por IP precisa do IP real, atrás do proxy) |
+   | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | usuário e senha do primeiro administrador |
+   | `CORS_ALLOWED_ORIGINS` | o endereço da Netlify (passo 3; pode deixar para depois) |
+   | `FRONTEND_URL` | o mesmo endereço da Netlify |
+
+5. *Settings* → *Networking* → *Generate Domain*. Anote o endereço (ex.: `https://secretbook-api.up.railway.app`)
+   e confira: `https://SEU-BACKEND/actuator/health` deve responder `{"status":"UP"}`.
+
+**Pelo terminal (alternativa):**
+
+```powershell
+npm install -g @railway/cli
+railway login
+cd backend
+railway init                     # cria o projeto
+railway add --database postgres  # cria o banco
+railway up                       # envia o código e cria o serviço do backend
+```
+
+Depois defina as variáveis da tabela acima (no painel, ou com `railway variables --set "NOME=valor"`) e gere o
+domínio com `railway domain`.
+
+### 2. Frontend na Netlify
+
+**Pelo painel (app.netlify.com):**
+
+1. *Add new site* → *Import an existing project* → GitHub → `Secret-Book`.
+2. As configurações de build vêm do `netlify.toml` (base `frontend`, comando `npm ci && npm run build`, pasta
+   `dist`); não precisa mudar nada.
+3. Em *Site configuration* → *Environment variables*, crie `VITE_API_URL` = endereço do backend (sem `/` no final).
+4. *Deploys* → *Trigger deploy*. Anote o endereço do site (ex.: `https://secretbook.netlify.app`).
+
+**Pelo terminal (alternativa), na raiz do projeto:**
+
+```powershell
+npm install -g netlify-cli
+netlify login
+netlify init                                          # cria o site e liga ao repositório
+netlify env:set VITE_API_URL https://SEU-BACKEND.up.railway.app
+netlify deploy --build --prod
+```
+
+### 3. Ligue um ao outro
+
+Volte ao Railway e coloque o endereço da Netlify em `CORS_ALLOWED_ORIGINS` e `FRONTEND_URL` (o backend reinicia
+sozinho). Pronto: abra o site, crie uma conta e faça o quiz. O painel administrativo fica em `/admin`, com o
+`ADMIN_USERNAME` e a `ADMIN_PASSWORD` definidos.
+
+> `VITE_API_URL` entra no código na hora do build: se o endereço do backend mudar, atualize a variável e publique o
+> frontend de novo. Atualizações no GitHub geram deploy automático nos dois serviços.
+
+### Testar a imagem do backend localmente (opcional)
+
+```powershell
+cd backend
+docker build -t secretbook-api .
+docker run --rm -p 8081:8080 -e DB_URL=jdbc:postgresql://host.docker.internal:5433/secretbook -e JWT_SECRET=uma-chave-com-mais-de-32-caracteres secretbook-api
+```
 
 ## Estrutura do frontend
 

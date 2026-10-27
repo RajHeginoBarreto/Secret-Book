@@ -1,0 +1,22 @@
+# Frontend na Netlify. O endereço do backend vem da variável VITE_API_URL (configurada no painel ou com
+# "netlify env:set VITE_API_URL https://seu-backend...").
+[build]
+  base = "frontend"
+  command = "npm ci && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Aplicação de página única: qualquer rota (ex.: /minha-conta/leitor) abre o index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
