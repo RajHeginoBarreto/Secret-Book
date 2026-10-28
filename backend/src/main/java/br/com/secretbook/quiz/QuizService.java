@@ -113,7 +113,9 @@ public class QuizService {
 
 	/** Monta a resposta completa de uma tentativa (usada logo após o envio e ao reabrir um resultado). */
 	@Transactional(readOnly = true)
-	public QuizResultResponse toResult(QuizAttempt attempt) {
+	public QuizResultResponse toResult(QuizAttempt detached) {
+		// A tentativa chega de outra transação: recarrega para que livros, autores e gêneros possam ser lidos aqui.
+		QuizAttempt attempt = attempts.findById(detached.getId()).orElseThrow();
 		Map<String, String> genreNames = genreNames();
 		PreferenceProfile preferences = toPreferences(attempt.getChosenOptions());
 		QuizProfile profile = profiles.findById(attempt.getProfileKey())

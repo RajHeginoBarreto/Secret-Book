@@ -166,7 +166,8 @@ A documentação completa está no Swagger. Rotas públicas, de leitor logado e 
 - **Organização por funcionalidade**: `catalog`, `quiz` (com o motor em `quiz/engine`, Java puro e testado sem
   banco), `auth`, `account`, `admin`, `common`, `config`.
 - **Migrações**: o esquema é criado só pelo Flyway, em `backend/src/main/resources/db/migration`
-  (`V1__catalog`, `V2__quiz`, `V3__auth`, `V4__account`, `V5__reader_profile`). O Hibernate apenas valida (`ddl-auto=validate`).
+  (`V1__catalog`, `V2__quiz`, `V3__auth`, `V4__account`, `V5__reader_profile`, `V6__row_level_security`). Toda tabela nova precisa de
+  `alter table ... enable row level security` na própria migração. O Hibernate apenas valida (`ddl-auto=validate`).
 - **Erros**: todas as respostas de erro seguem o padrão [Problem Details (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457),
   com `Content-Type: application/problem+json` e textos em português, inclusive 401 e 403. Erros de validação
   trazem a lista `errors` (`[{ "field": "title", "message": "é obrigatório" }]`). Use `ResourceNotFoundException`
@@ -213,6 +214,23 @@ $b = New-Object byte[] 48; [Security.Cryptography.RNGCryptoServiceProvider]::Cre
    | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | usuário e senha do primeiro administrador |
    | `CORS_ALLOWED_ORIGINS` | o endereço da Netlify (passo 3; pode deixar para depois) |
    | `FRONTEND_URL` | o mesmo endereço da Netlify |
+
+   **Banco no Supabase em vez do Postgres do Railway.** Pule o item 3 e crie um projeto no
+   [Supabase](https://supabase.com) (região São Paulo). Em *Connect*, use a conexão **Session pooler** (a "Direct
+   connection" só funciona por IPv6) e preencha:
+
+   | Variável | Valor |
+   |---|---|
+   | `DB_URL` | `jdbc:postgresql://<host-do-pooler>:5432/postgres?sslmode=require` (o host aparece em *Connect*) |
+   | `DB_USERNAME` | `postgres.<id-do-projeto>` |
+   | `DB_PASSWORD` | a senha do banco definida ao criar o projeto |
+
+   O Supabase é usado só como PostgreSQL: as tabelas são criadas pelo Flyway na primeira subida, e as contas
+   (leitores e admin) ficam na tabela `app_user`, não no *Authentication* do Supabase (que fica vazio). Não é
+   preciso ligar o Supabase ao GitHub. A migração `V6__row_level_security` liga o RLS em todas as tabelas, sem
+   políticas, o que fecha a API pública do Supabase (chave *anon*) para esses dados; o backend não é afetado. Se o
+   painel do Supabase avisar sobre a `flyway_schema_history`, rode no *SQL Editor*:
+   `alter table public.flyway_schema_history enable row level security;`
 
 5. *Settings* → *Networking* → *Generate Domain*. Anote o endereço (ex.: `https://secretbook-api.up.railway.app`)
    e confira: `https://SEU-BACKEND/actuator/health` deve responder `{"status":"UP"}`.
